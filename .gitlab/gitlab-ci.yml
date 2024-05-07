@@ -1,0 +1,8 @@
+# https://git.apddev.com/DevOps/project-templates/mcl
+ 
+include:
+  - project: '$PROJECT_TEMPLATES/mcl'
+    ref: master
+    file:
+      - 'api/skins-api/.variables.yml'
+      - 'api/skins-api/.gitlab-ci.yml'

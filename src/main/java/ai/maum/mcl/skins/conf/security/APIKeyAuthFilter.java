@@ -1,0 +1,85 @@
+package ai.maum.mcl.skins.conf.security;
+
+import ai.maum.mcl.skins.api.apiuser.service.ApiUserService;
+import ai.maum.mcl.skins.api.member.service.MemberDetailService;
+import ai.maum.mcl.skins.meta.RegexMeta;
+import ai.maum.mcl.skins.mybatis.vo.ApiUserVO;
+import ai.maum.mcl.skins.util.StringUtil;
+import ai.maum.mcl.skins.meta.ConstantsMeta;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+
+@Component
+@RequiredArgsConstructor
+public class APIKeyAuthFilter extends OncePerRequestFilter {
+//    private static final String HEADER_NAME_API_KEY = "Api-Key";
+//    private static final String HEADER_NAME_VENDOR_ID = "Vendor-Id";
+//    private static final String HEADER_NAME_MEMBER_ID = "Member-Id";
+//    private final ApiUserDetailService apiUserDetailService;
+
+    @Autowired
+    ApiUserService apiUserService;
+
+    @Autowired
+    MemberDetailService memberDetailService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        //미인증 URL 예외 처리
+        String requestURI = request.getRequestURI();
+        if(StringUtil.matches(requestURI, RegexMeta.PUBLICAPI_PATH)
+            || StringUtil.matches(requestURI, RegexMeta.SWAGGER_PATHS)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String apiKey = request.getHeader(ConstantsMeta.HEADER_NAME_API_KEY);
+        String vendorId = request.getHeader(ConstantsMeta.HEADER_NAME_VENDOR_ID);
+        String memberId = request.getHeader(ConstantsMeta.HEADER_NAME_MEMBER_ID);
+
+        if(apiKey == null || vendorId == null || memberId == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("No API Key or No Vendor Id found in request headers");
+            return;
+        }
+
+        ApiUserVO apiUser = apiUserService.getApiUser(vendorId);
+
+//        //api key validate check
+        if(!apiKey.equals(apiUser.getApiKey())) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(vendorId + " api key is invalid");
+            return;
+        } else if (!"Y".equals(apiUser.getUseYn())) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(vendorId + " is disabled");
+            return;
+        }
+
+        //api validate check 이후 사용자 정보 Set
+        UserDetails userDetails = memberDetailService.loadUserByUsername(memberId);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                userDetails.getPassword(),
+                userDetails.getAuthorities()
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        filterChain.doFilter(request, response);
+    }
+}
