@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: skins-api
+#  autoconfigure:
+#    exclude:
+#      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+  # DB 설정
+  datasource:
+    url: *
+    username: *
+    password: *
+
+mybatis:
+  type-aliases-package: ai.maum.mcl.skins.mybatis.mapper
+  mapper-locations: mapper/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+
+service:
+  swagger:
+    title: SKINS API 문서
+    desc : SKINS 시스템 API 문서 입니다.

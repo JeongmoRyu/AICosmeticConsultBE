@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ai.maum.mcl.skins.api.member.mapper.MemberMapper">
+    <select id="findMemberById" resultType="ai.maum.mcl.skins.api.member.model.Member" parameterType="Long">
+        SELECT id, name, birthday, birth_cd, sex
+        FROM citylab_member
+        where id = #{id}
+    </select>
+    <select id="findListMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
+        SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count, a.chat_updated, a.site
+        FROM citylab_member a
+        LEFT JOIN (
+        SELECT *, ROW_NUMBER() OVER(PARTITION BY userkey ORDER BY consult_date DESC) AS rn
+        FROM tb_consult_info
+        ) b ON a.id = b.userkey AND b.rn = 1
+        LEFT JOIN (
+        SELECT userkey, COUNT(*) AS consult_count
+        FROM tb_consult_info
+        GROUP BY userkey
+        ) c ON a.id = c.userkey
+        <where>
+            <if test="name != null and name != ''">
+                AND a.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="age != null">
+                AND (EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM TO_DATE(a.birthday, 'YYYYMMDD'))) = #{age}
+            </if>
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy == 'name'">
+                ORDER BY a.name
+            </when>
+            <when test="orderBy != null and orderBy == 'chatting'">
+                ORDER BY a.chat_updated
+            </when>
+            <otherwise>
+                ORDER BY a.name
+            </otherwise>
+        </choose>
+        <if test="order != null">
+            <choose>
+                <when test="order =='asc'">
+                    ASC NULLS LAST
+                </when>
+                <otherwise>
+                    DESC NULLS LAST
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <update id="updateChatTime">
+        UPDATE citylab_member
+        SET chat_updated = #{chatUpdated}
+        WHERE id = #{memberId}
+    </update>
+</mapper>

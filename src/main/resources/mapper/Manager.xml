@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ai.maum.mcl.skins.api.manager.mapper.ManagerMapper">
+    <select id="getManagerByManagerId" resultType="ai.maum.mcl.skins.api.manager.model.Manager" parameterType="String">
+        SELECT id, manager_id, password, name, skins_pwd
+        FROM citylab_manager
+        where manager_id = #{managerId}
+    </select>
+    <select id="getManagerById" resultType="ai.maum.mcl.skins.api.manager.model.Manager" parameterType="Long">
+        SELECT id, manager_id, password, name, skins_pwd
+        FROM citylab_manager
+        where id = #{id}
+    </select>
+    <insert id="insertManager" useGeneratedKeys="true" keyProperty="id" parameterType="ai.maum.mcl.skins.api.manager.model.Manager">
+        INSERT INTO citylab_manager (manager_id, name, skins_pwd)
+        VALUES ( #{managerId}, #{name}, #{skinsPwd} )
+    </insert>
+</mapper>

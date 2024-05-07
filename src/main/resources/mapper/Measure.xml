@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ai.maum.mcl.skins.api.measure.mapper.MeasureMapper">
+    <select id="getMeasureInfoByUserKey" resultType="ai.maum.mcl.skins.api.measure.model.MeasureInfo" parameterType="Long">
+        SELECT  a.surveyno
+             , a.surveydate
+             , a.userkey
+             , a.skin_score
+             , a.skin_gomin
+             , a.iscomplexity
+             , a.t_zone_result
+             , a.t_zone_position_num
+             , a.u_zone_result
+             , a.u_zone_position_num
+             , a.fizpatrick_color_point
+             , a.solution_type_number
+             , b.description as solution_type_result
+             , b.memo as solution_type_tip
+             , a.sensitive_type_number
+             , c.description as sensitive_type_result
+             , c.memo  as sensitive_type_tip
+             , a.specialtip_img
+             , a.specialtip_stoke_img
+             , a.specialtip_memo
+             , d.pore
+             , d.wrinkle
+             , d.futurewrinkles
+             , d.elasticity
+             , d.pigmentation
+             , d.melanin
+             , d.redness
+             , d.porphyrin
+             , d.transdermal
+        FROM skins.citylab_result_rpt a
+                 left join skins.tb_code b on b.cd_id = a.solution_type_number and b.group_cd = 'MEASURE_SKIN_RESULT'
+                 left join skins.tb_code c on c.cd_id = a.sensitive_type_number and c.group_cd = 'MEASURE_SENS_RESULT'
+                 left join skins.citylab_skin_concern d on d.surveyno = a.surveyno
+        WHERE a.userkey = #{userKey}
+       ORDER BY surveydate
+    </select>
+</mapper>
