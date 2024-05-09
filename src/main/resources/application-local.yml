@@ -5,9 +5,7 @@ spring:
   # DB 설정
   datasource:
     # 외부망
-#    url: ENC(poDkxIf/lCY/zV0VdtRIEiwEAO0fRkoGZikuDK/cqrawTJJ1PKfKKMt+cImZhgcZTZ73ToBnhL7+Jg9EIHblqSE2eu+sAfXGSi0bAF1luQToc51REzuJyJaIG++Cogu4EUsa/5cc2/IB9/TTln0+tg==)
-#    username: ENC(JXBVy5H1FHtvJG02suDu9Ar+p6XrWIBKH25FGdD7lgEM/0fg1t+tHDGWILf21fza)
-#    password: ENC(bX0xE7Mi3h4928Ukt/aI3jpGPj1mlC5ZeaUFjzznlAs3j6g7H5so+GSnnbqGD3dC)
+
     # 내부망
     url: *
     username: *

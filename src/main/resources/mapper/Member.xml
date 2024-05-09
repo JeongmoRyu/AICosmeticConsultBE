@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="ai.maum.mcl.skins.mybatis.mapper.MemberMapper">
-    <select id="findMemberById" resultType="ai.maum.mcl.skins.mybatis.vo.MemberDetailVO" parameterType="Long">
+<mapper namespace="ai.maum.mcl.skins.api.member.mapper.MemberMapper">
+    <select id="findMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberDetail" parameterType="Long">
         SELECT id, name, birthday, birth_cd, sex
         FROM citylab_member
         where id = #{id}

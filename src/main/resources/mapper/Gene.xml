@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ai.maum.mcl.skins.api.gene.mapper.GeneMapper">
+    <select id="getGeneInfoByUserKey" resultType="ai.maum.mcl.skins.api.gene.model.GeneInfo" parameterType="Long">
+        SELECT tgi.survey_date AS survey_data, a.survey_id AS survey_id, a.category_cd AS category_cd, cd3.cd_name AS category_name, a.item_cd AS item_cd, cd1.cd_name AS item_name, a.grade AS grade, cd2.cd_name AS grade_name, cd4.memo AS description
+        FROM skins.tb_gene_detail AS a
+            LEFT JOIN skins.tb_gene_info tgi ON tgi.user_key = #{userKey} AND a.survey.id = (SELECT max(id) FROM skins.tb_gene_info WHERE user_key = #{userKey} GROUP BY id) LEFT JOIN skins.tb_gene_info tgi1 ON tgi.user_key = #{userKey} LEFT JOIN skins.tb_code cd1 ON cd1.cd_id = a.item_cd  LEFT JOIN skins.tb_code cd2 ON cd2.cd_id = a.grade AND cd2.group_cd = 'GENE_RESULT' LEFT JOIN skins.tb_code cd3 ON cd3.cd_id = a.category_cd AND cd3.group_cd = 'GENE CAT'  LEFT JOIN skins.tb_code cd4 ON cd4.cd_id = a.grade AND cd4.group_cd = a.item_cd
+        ORDER BY a.survey_id DESC, a.category_cd
+
+    </select>
+</mapper>

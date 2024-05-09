@@ -3,7 +3,7 @@ package ai.maum.mcl.skins.conf.security;
 import ai.maum.mcl.skins.api.apiuser.service.ApiUserService;
 import ai.maum.mcl.skins.api.member.service.MemberDetailService;
 import ai.maum.mcl.skins.meta.RegexMeta;
-import ai.maum.mcl.skins.mybatis.vo.ApiUserVO;
+import ai.maum.mcl.skins.api.apiuser.model.ApiUser;
 import ai.maum.mcl.skins.util.StringUtil;
 import ai.maum.mcl.skins.meta.ConstantsMeta;
 import jakarta.servlet.FilterChain;
@@ -56,7 +56,7 @@ public class APIKeyAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        ApiUserVO apiUser = apiUserService.getApiUser(vendorId);
+        ApiUser apiUser = apiUserService.getApiUser(vendorId);
 
 //        //api key validate check
         if(!apiKey.equals(apiUser.getApiKey())) {

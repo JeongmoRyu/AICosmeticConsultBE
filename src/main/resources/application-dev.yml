@@ -5,9 +5,7 @@ spring:
   # DB 설정
   datasource:
     # 외부망
-#    url: ENC(poDkxIf/lCY/zV0VdtRIEiwEAO0fRkoGZikuDK/cqrawTJJ1PKfKKMt+cImZhgcZTZ73ToBnhL7+Jg9EIHblqSE2eu+sAfXGSi0bAF1luQToc51REzuJyJaIG++Cogu4EUsa/5cc2/IB9/TTln0+tg==)
-#    username: ENC(JXBVy5H1FHtvJG02suDu9Ar+p6XrWIBKH25FGdD7lgEM/0fg1t+tHDGWILf21fza)
-#    password: ENC(bX0xE7Mi3h4928Ukt/aI3jpGPj1mlC5ZeaUFjzznlAs3j6g7H5so+GSnnbqGD3dC)
+
     # 내부망
     url: ENC(*)
     username: *
@@ -22,10 +20,10 @@ logging:
 
 service:
   server:
-    url: https://i-dev-mcl-skins-api.apddev.com
+    url: url
   cors:
     # 요청 허용 대상 목록
-    origins: ${service.server.url}, http://localhost:3000, https://localhost:3000, http://i-dev-mcl-proai-fe.apddev.com, http://i-dev-mcl-proai-api.apddev.com, https://i-dev-mcl-proai-fe.apddev.com, https://i-dev-mcl-proai-api.apddev.com, https://i-dev-mcl-skins-api.apddev.com, http://i-dev-mcl-skins-api.apddev.com, null
+    origins: ${service.server.url}, http://localhost:3000, https://localhost:3000, url1, url2, url3, url4, url5, url6, null
     # 허용 헤더 목록
     headers: Content-Type
     # 자격증명 설정

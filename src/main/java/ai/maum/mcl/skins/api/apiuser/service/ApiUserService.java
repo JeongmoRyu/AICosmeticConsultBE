@@ -1,7 +1,7 @@
 package ai.maum.mcl.skins.api.apiuser.service;
 
-import ai.maum.mcl.skins.mybatis.mapper.ApiUserMapper;
-import ai.maum.mcl.skins.mybatis.vo.ApiUserVO;
+import ai.maum.mcl.skins.api.apiuser.mapper.ApiUserMapper;
+import ai.maum.mcl.skins.api.apiuser.model.ApiUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class ApiUserService {
     private final ApiUserMapper apiUserMapper;
 
-    public ApiUserVO getApiUser(String vendorId) {
+    public ApiUser getApiUser(String vendorId) {
         return apiUserMapper.getApiUserById(vendorId);
     }
 }
