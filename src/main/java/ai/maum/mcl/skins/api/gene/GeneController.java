@@ -22,9 +22,9 @@ import java.util.List;
 @RequestMapping("/api/gene")
 public class GeneController {
     private final GeneService geneService;
-    @Operation(summary = "유전자검사정보조회", description = "유전자검사정보조회")
+    @Operation(summary = "유전자검사결과조회", description = "유전자검사결과조회")
     @GetMapping("/info")
-    public BaseResponse<List<GeneInfo>> respoonseGeneInfo(
+    public BaseResponse<List<GeneInfo>> responseGeneInfo(
             @AuthenticationPrincipal MemberDetail member
     ) {
         Long userKey = Long.valueOf(member.getUsername());
@@ -33,6 +33,6 @@ public class GeneController {
         return BaseResponse.success(getGeneInfo(userKey));
     }
     public List<GeneInfo> getGeneInfo(Long userKey) {
-        return geneService.getGenInfoByUserKey(userKey);
+        return geneService.getGeneInfoByUserKey(userKey);
     }
 }

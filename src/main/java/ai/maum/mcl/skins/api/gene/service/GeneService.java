@@ -13,5 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GeneService {
     private final GeneMapper geneMapper;
-    public List<GeneInfo> getGeneInfoByUserKey(Long userKey) {return geneMapper.getGeneInfoByUserKey(userKey);}
+    public List<GeneInfo> getGeneInfoByUserKey(Long userKey) {
+        return geneMapper.getGeneInfoByUserKey(userKey);
+    }
 }

@@ -72,6 +72,12 @@ public class APIKeyAuthFilter extends OncePerRequestFilter {
         //api validate check 이후 사용자 정보 Set
         UserDetails userDetails = memberDetailService.loadUserByUsername(memberId);
 
+        if(userDetails == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write(memberId + "not found");
+            return;
+        }
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
                 userDetails.getPassword(),

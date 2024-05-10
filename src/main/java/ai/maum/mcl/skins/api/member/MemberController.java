@@ -28,7 +28,7 @@ public class MemberController {
     private final ConsultService consultService;
     private final MeasureService measureService;
     private final GeneService geneService;
-    @Operation(summary = "고객정보조회", description = "고객정보조회")
+    @Operation(summary = "고객정보조회", description = "고객정보조회(only 사용자정보)")
     @GetMapping("/info")
     public BaseResponse<MemberInfo> getMemberInfo(
             @AuthenticationPrincipal MemberDetail member
@@ -65,16 +65,17 @@ public class MemberController {
         List<GeneInfo> geneInfoList = geneService.getGeneInfoByUserKey(userKey);
 
         String memberInfo = memberInfoToString(memberInfoObj);
-        String measureInfo = measureInfoToString(memberInfoObj);
-        String geneInfo = geneInfoToString(memberInfoObj);
-        String consultInfo = consultInfoToString(memberInfoObj);
+        String measureInfo = measureInfoToString(measureInfoList);
+        String geneInfo = geneInfoToString(geneInfoList);
+        String consultInfo = consultInfoToString(consultInfoList);
+
 
         memberResult = new MemberResult(memberInfo, consultInfo, measureInfo, geneInfo);
         return BaseResponse.success(memberResult);
     }
 
     private String memberInfoToString(MemberInfo memberInfo) {
-        String name = memberInfo.getSex();
+        String name = memberInfo.getName();
         String sex = switch (memberInfo.getSex()) {
             case ("F") -> "여성";
             case ("M") -> "남성";
@@ -90,7 +91,7 @@ public class MemberController {
         int index = 1;
         for(ConsultInfo consultInfo:consultInfos) {
             if(consultInfos.size() > 1)
-                result += (result.isBlank()?"[":"\n[") + index + "자 상담]\n";
+                result += (result.isBlank()?"[":"\n[") + index + "차 상담]\n";
             if(consultInfo.getConsultData() != null && !consultInfo.getConsultData().isBlank())
                 result += String.format("상담결과-\"%s\",", consultInfo.getConsultData());
             if(consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
@@ -113,25 +114,37 @@ public class MemberController {
         int index = 1;
         for(MeasureInfo measureInfo:measureInfos) {
             if(measureInfos.size() > 1)
-                result += result.isBlank()?index + "차결과" + index + "차결과";
+                result += result.isBlank()?index + "차결과,":"\n" + index + "차결과,";
             result += String.format("T존:%s\nU존:%s\n", measureInfo.getTZoneResult(), measureInfo.getUZoneResult())
                     + String.format("피부등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSolutionTypeNumber(), measureInfo.getSolutionTypeResult(), measureInfo.getSoultionTypeTip())
-                    + String.format("민감등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSensitiveTypeNumber(), measureInfo.getSensitiveTypeResult(), measureInfo.getSensitiveTypeTip());
+                    + String.format("민감등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSensitiveTypeNumber(), measureInfo.getSensitiveTypeResult(), measureInfo.getSensitiveTypeTip())
+                    + String.format("피부고민 - 1.피부의 노화관련 특성 \"모공:%s, 주름:%s, 미래주름:%s, 탄력:%s\" 2.피부의 밝음과 투명도 특성 \"색소침착:%s,멜라닌:%s\" 3. 피부의 외부 자극 반응도 특성 \"붉은기:%s, 포피린:%s, 경피수분손실:%s\","
+                        , measureInfo.getPoreString()
+                        , measureInfo.getWrinkleString()
+                        , measureInfo.getFuturewrinkleString()
+                        , measureInfo.getElasticityString()
+                        , measureInfo.getPigmemtationString()
+                        , measureInfo.getMelaninString()
+                        , measureInfo.getRednessString()
+                        , measureInfo.getPorphyrinString()
+                        , measureInfo.getTransdermalString();
+
             index ++ ;
         }
-        return result
+        return result;
     }
 
     private  String geneInfoToString(List<GeneInfo> geneInfos) {
         String result = new String();
         String prevCategoryName = "";
         for(GeneInfo geneInfo: geneInfos) {
-            log.debug(prevCategoryName + ":" + geneInfo.getCategoryName());
+//            log.debug(prevCategoryName + ":" + geneInfo.getCategoryName());
 
             if (!prevCategoryName.equals(geneInfo.getCategoryName())) {
                 result += (result.isBlank() ? "[":"\n[") + geneInfo.getCategoryName() + "]\n";
             }
-            result += geneInfo.getItemName() + ":" + geneInfo.getGradeName() + "-" + geneInfo.getDescription() + "\n";
+//            result += geneInfo.getItemName() + ":" + geneInfo.getGradeName() + "-" + geneInfo.getDescription() + "\n";
+            result += geneInfo.getItemName() + ":" + geneInfo.getGradeName();
             prevCategoryName = geneInfo.getCategoryName();
         }
         return result;

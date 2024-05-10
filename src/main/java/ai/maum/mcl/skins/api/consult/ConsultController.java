@@ -30,7 +30,7 @@ public class ConsultController {
     ) {
         Long userKey = Long.valueOf(member.getUsername());
         if(userKey == null || userKey < 1L)
-            return BaseResponse.failure(null, "사용자 key 요구");
+            return BaseResponse.failure(null, "사용자 key 오류");
         return BaseResponse.success(getConsultInfo(userKey));
     }
     public List<ConsultInfo> getConsultInfo(Long userKey) {

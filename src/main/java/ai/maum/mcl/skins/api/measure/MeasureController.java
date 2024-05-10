@@ -4,7 +4,6 @@ import ai.maum.mcl.skins.api.common.BaseResponse;
 import ai.maum.mcl.skins.api.measure.model.MeasureInfo;
 import ai.maum.mcl.skins.api.measure.service.MeasureService;
 import ai.maum.mcl.skins.api.member.model.MemberDetail;
-import ai.maum.mcl.skins.api.member.model.MemberInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class MeasureController {
     public BaseResponse<List<MeasureInfo>> responseMeasureInfo(
             @AuthenticationPrincipal MemberDetail member
     ) {
-        Long userKey = Long.valueOf(member.getUserName());
+        Long userKey = Long.valueOf(member.getUsername());
         if (userKey == null || userKey < 1L)
             return BaseResponse.failure(null, "사용자 key 오류");
         return BaseResponse.success(getMeasureInfo(userKey));
