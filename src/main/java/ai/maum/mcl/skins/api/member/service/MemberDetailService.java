@@ -21,8 +21,10 @@ public class MemberDetailService implements UserDetailsService {
         log.debug("loadUserByUsername!!!");
 
         MemberDetail member = null;
+        MemberSearch userList = null;
         try {
             member = memberMapper.findMemberById(Long.valueOf(memberId));
+            userList = memberMapper.findSearchMemberById(Long.valueOf(memberId));
         } catch (Exception e) {
             log.error(e.getMessage());
         }

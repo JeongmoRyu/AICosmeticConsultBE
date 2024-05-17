@@ -9,4 +9,8 @@
         FROM citylab_member
         where id = #{id}
     </select>
+    <select id="findSearchMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberSearch" parameterType="Long">
+        SELECT id, name, birthday, birth_cd, sex
+        FROM citylab_member
+    </select>
 </mapper>

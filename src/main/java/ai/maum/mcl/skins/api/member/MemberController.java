@@ -18,7 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -47,7 +50,6 @@ public class MemberController {
     public MemberInfo getMemberInfoFromMemberDetail(MemberDetail member) {
         return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge());
     }
-
     @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
     @GetMapping("/result")
     public BaseResponse<MemberResult> getMemberResult(
@@ -167,85 +169,143 @@ public class MemberController {
     }
 
 
+    public MemberSearch getMemberInfoFromMemberDetailWithBirth(MemberDetail member, ConsultInfo List<ConsultInfo> consultInfoList) {
+        return new MemberSearch(member.getUsername(), member.getName(), member.getSex(), member.getAge());
+//        return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge(), consultInfoList.getConcern1(), consultInfoList.getConcern2());
+    }
     @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
     @GetMapping("/search")
-    public BaseResponse<MemberSearch> getMemberSearch(@AuthenticationPrincipal MemberDetail member) {
+    public BaseResponse<List<MemberSearch>> getMemberSearch() {
+
         Long userKey = Long.valueOf(member.getUsername());
-
-        if (userKey == null || userKey < 1L)
+        if (userKey == null || userKey < 1L) {
             return BaseResponse.failure(null, "사용자 Key 오류");
+        }
+        List<MemberSearch> memberSearchList =
+        List<MemberSearch> memberSearchList = new ArrayList<>();
 
-        List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
-        MemberInfo memberInfoObj = getMemberInfoFromMemberDetail(member);
+        for (MemberSearch memberSearch : memberSearchList) {
+            List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
 
-        List<Map<String, Object>> memberInfoList = consultSearchToString(consultInfoList, memberInfoObj);
+            MemberSearch memberInfoObj = getMemberInfoFromMemberDetailWithBirth(member, consultInfoList);
 
-        MemberSearch memberSearch = new MemberSearch(memberInfoList);
+            MemberSearch memberSearch = new MemberSearch(
+                    memberInfoObj.getId(),
+                    memberInfoObj.getName(),
+//                memberInfoObj.getBirthYear(),
+                    memberInfoObj.getSex(),
+                    memberInfoObj.getAge()
+            );
+//                consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank() ? consultInfo.getConcern1() : "----",
+//                consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank() ? consultInfo.getConcern2() : "----",
+//                consultInfoList.size()
 
-        return BaseResponse.success(memberSearch);
-    }
 
-    private List<Map<String, Object>> consultSearchToString(List<ConsultInfo> consultInfos, MemberInfo memberInfoObj) {
-        List<Map<String, Object>> resultList = new ArrayList<>();
-
-        for (ConsultInfo consultInfo : consultInfos) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("이름", memberInfoObj.getName());
-            result.put("성별", memberInfoObj.getGender() != null ? memberInfoObj.getGender() : "--");
-            result.put("나이", memberInfoObj.getAge() != null ? memberInfoObj.getAge().toString() : "--");
-            result.put("출생년도", memberInfoObj.getBirthYear() != null ? memberInfoObj.getBirthYear().toString() : "----");
-
-            if (consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
-                result.put("고민1", consultInfo.getConcern1());
-            else
-                result.put("고민1", "----");
-
-            if (consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank())
-                result.put("고민2", consultInfo.getConcern2());
-            else
-                result.put("고민2", "----");
-
-            resultList.add(result);
+            memberSearchList.add(memberSearch);
         }
 
-        return resultList;
+        return BaseResponse.success(memberSearchList);
     }
 
-//     public MemberInfo getMemberInfoFromMemberDetailWithBirth(MemberDetail member, ConsultInfo consultinfo) {
-//     return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge(), consultinfo.getConcern1(), consultinfo.getConcern2());
-// }
-//     @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
-// @GetMapping("/search")
-// public BaseResponse<List<MemberSearch>> getMemberSearch(@AuthenticationPrincipal MemberDetail member) {
-//     Long userKey = Long.valueOf(member.getUsername());
+//    public MemberSearch getMemberInfoFromMemberDetailWithBirth(
+//            MemberDetail member, List<ConsultInfo> consultInfoList) {
+//
+//        StringBuilder concernsBuilder = new StringBuilder();
+//
+//        for (int i = 0; i < consultInfoList.size(); i++) {
+//            ConsultInfo consultInfo = consultInfoList.get(i);
+//            concernsBuilder.append(String.format("%d차: %s\n", i+1, consultInfo.getConcern1()));
+//            concernsBuilder.append(String.format("%d차: %s\n", i+1, consultInfo.getConcern2()));
+//        }
+//
+//        String concerns = concernsBuilder.toString();
+//
+//        return new MemberSearch(
+//                member.getUsername(),
+//                member.getName(),
+//                member.getSex(),
+//                member.getAge(),
+//                concerns
+//        );
+//    }
 
-//     if (userKey == null || userKey < 1L) {
-//         return BaseResponse.failure(null, "사용자 Key 오류");
-//     }
 
-//     List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
-//     List<MemberSearch> memberSearchList = new ArrayList<>();
+//    public MemberSearch getMemberInfoFromMemberDetailWithBirth(MemberDetail member, ConsultInfo List<ConsultInfo> consultInfoList) {
+//        return new MemberSearch(member.getUsername(), member.getName(), member.getSex(), member.getAge());
+////        return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge(), consultInfoList.getConcern1(), consultInfoList.getConcern2());
+//    }
+//    @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
+//    @GetMapping("/search")
+//    public BaseResponse<List<MemberSearch>> getMemberSearch(@AuthenticationPrincipal MemberDetail member) {
+//        Long userKey = Long.valueOf(member.getUsername());
+//        if (userKey == null || userKey < 1L) {
+//            return BaseResponse.failure(null, "사용자 Key 오류");
+//        }
+//        List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
+//        List<MemberSearch> memberSearchList = new ArrayList<>();
+//
+//        for (ConsultInfo consultInfo : consultInfoList) {
+//            MemberSearch memberInfoObj = getMemberInfoFromMemberDetailWithBirth(member, consultInfoList);
+//
+//            MemberSearch memberSearch = new MemberSearch(
+//                memberInfoObj.getId(),
+//                memberInfoObj.getName(),
+////                memberInfoObj.getBirthYear(),
+//                memberInfoObj.getSex(),
+//                memberInfoObj.getAge()
+//            );
+////                consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank() ? consultInfo.getConcern1() : "----",
+////                consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank() ? consultInfo.getConcern2() : "----",
+////                consultInfoList.size()
+//
+//
+//            memberSearchList.add(memberSearch);
+//        }
+//
+//        return BaseResponse.success(memberSearchList);
+//    }
 
-//     for (ConsultInfo consultInfo : consultInfoList) {
-//         MemberInfo memberInfoObj = getMemberInfoFromMemberDetailWithBirth(member, consultInfo);
 
-//         MemberSearch memberSearch = new MemberSearch(
-//             memberInfoObj.getId(),
-//             memberInfoObj.getName(),
-//             memberInfoObj.getBirthYear(),
-//             memberInfoObj.getGender(),
-//             memberInfoObj.getAge(),
-//             consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank() ? consultInfo.getConcern1() : "----",
-//             consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank() ? consultInfo.getConcern2() : "----",
-//             consultInfoList.size() // assuming visitNum is the number of visits
-//         );
 
-//         memberSearchList.add(memberSearch);
-//     }
 
-//     return BaseResponse.success(memberSearchList);
-// }
-
+//    @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
+//    @GetMapping("/search")
+//    public BaseResponse<MemberSearch> getMemberSearch(@AuthenticationPrincipal MemberDetail member) {
+//        MemberSearch memberSearch = new MemberSearch();
+//        Long userKey = Long.valueOf(member.getUsername());
+//
+//        if(userKey == null || userKey < 1L)
+//            return BaseResponse.failure(null, "사용자 Key 오류");
+//        List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
+//        MemberSearch memberSearchObj = getMemberInfoFromMemberDetailWithBirth(member, consultInfoList);
+//
+//        memberSearch = new MemberSearch(memberSearchObj);
+//
+//        return BaseResponse.success(memberSearch);
+//    }
+//
+//
+//    private String consultSearchToString(List<ConsultInfo> consultInfos, MemberInfo memberInfoObj) {
+//        List<Map<String, Object>> resultList = new ArrayList<>();
+//
+//        for (ConsultInfo consultInfo : consultInfos) {
+//            Map<String, Object> result = new HashMap<>();
+//            result.put("이름", memberInfoObj.getName());
+////            result.put("성별", memberInfoObj.getGender() != null ? memberInfoObj.getGender() : "--");
+//            result.put("나이", memberInfoObj.getAge() != null ? memberInfoObj.getAge().toString() : "--");
+////            result.put("출생년도", memberInfoObj.getBirthYear() != null ? memberInfoObj.getBirthYear().toString() : "----");
+//            if (consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
+//                result.put("고민1", consultInfo.getConcern1());
+//            else
+//                result.put("고민1", "----");
+//            if (consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank())
+//                result.put("고민2", consultInfo.getConcern2());
+//            else
+//                result.put("고민2", "----");
+//            resultList.add(result);
+//        }
+//        return resultList;
+//    }
 
 
 }
