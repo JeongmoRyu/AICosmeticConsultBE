@@ -212,28 +212,32 @@ public class MemberController {
     //     return BaseResponse.success(memberSearch);
     // }
 
+private String consultSearchToString(List<ConsultInfo> consultInfos, MemberInfo memberInfoObj) {
+    List<Map<String, Object>> resultList = new ArrayList<>();
 
+    for (ConsultInfo consultInfo : consultInfos) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("이름", memberInfoObj.getName());
+        result.put("성별", memberInfoObj.getGender() != null ? memberInfoObj.getGender() : "--");
+        result.put("나이", memberInfoObj.getAge() != null ? memberInfoObj.getAge().toString() : "--");
+        result.put("출생년도", memberInfoObj.getBirthYear() != null ? memberInfoObj.getBirthYear().toString() : "----");
+        
+        if (consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
+            result.put("고민1", consultInfo.getConcern1());
+        else
+            result.put("고민1", "----");
+        
+        if (consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank())
+            result.put("고민2", consultInfo.getConcern2());
+        else
+            result.put("고민2", "----");
 
-    private String consultSearchToString(List<ConsultInfo> consultInfos, MemberInfo memberInfoObj) {
-        List<Map<String, Object>> resultList = new ArrayList<>();
-
-        for(ConsultInfo consultInfo : consultInfos) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("이름", memberInfoObj.getName());
-            result.put("성별", memberInfoObj.getGender());
-            result.put("나이", memberInfoObj.getAge());
-            result.put("출생년도", memberInfoObj.getBirthYear());
-            if(consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
-                result.put("고민1", consultInfo.getConcern1());
-            if(consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank())
-                result.put("고민2", consultInfo.getConcern2());
-
-            resultList.add(result);
-        }
-
-        Gson gson = new Gson();
-        return gson.toJson(resultList);
+        resultList.add(result);
     }
+
+    Gson gson = new Gson();
+    return gson.toJson(resultList);
+}
 
 
 }
