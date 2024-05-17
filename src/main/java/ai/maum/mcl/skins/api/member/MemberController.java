@@ -172,11 +172,7 @@ public class MemberController {
 
     @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
     @GetMapping("/search")
-    public BaseResponse<MemberSearch> getMemberSearch(
-            @AuthenticationPrincipal MemberDetail member
-    ) {
-
-        MemberSearch memberSearch = new MemberSearch();
+    public BaseResponse<MemberSearch> getMemberSearch(@AuthenticationPrincipal MemberDetail member) {
         Long userKey = Long.valueOf(member.getUsername());
 
         if(userKey == null || userKey < 1L)
@@ -186,10 +182,9 @@ public class MemberController {
         List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
 
         String memberInfo = memberInfoToString(memberInfoObj);
-        // String consultInfo = consultSearchToString(consultInfoList);
         String consultInfo = consultSearchToString(consultInfoList, memberInfoObj);
 
-        memberSearch = new MemberSearch(memberInfo, consultInfo);
+        MemberSearch memberSearch = new MemberSearch(memberInfo, consultInfo);
 
         return BaseResponse.success(memberSearch);
     }
@@ -220,24 +215,24 @@ public class MemberController {
 
 
     private String consultSearchToString(List<ConsultInfo> consultInfos, MemberInfo memberInfoObj) {
-        JsonArray searchresult = new JsonArray();
+        List<Map<String, Object>> resultList = new ArrayList<>();
 
         for(ConsultInfo consultInfo : consultInfos) {
-            JsonObject result = new JsonObject();
-
-            result.addProperty("이름", memberInfoObj.getName());
-            result.addProperty("성별", memberInfoObj.getGender());
-            result.addProperty("나이", memberInfoObj.getAge());
-            result.addProperty("출생년도", memberInfoObj.getBirthYear());
+            Map<String, Object> result = new HashMap<>();
+            result.put("이름", memberInfoObj.getName());
+            result.put("성별", memberInfoObj.getGender());
+            result.put("나이", memberInfoObj.getAge());
+            result.put("출생년도", memberInfoObj.getBirthYear());
             if(consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
-                result.addProperty("고민1", consultInfo.getConcern1());
+                result.put("고민1", consultInfo.getConcern1());
             if(consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank())
-                result.addProperty("고민2", consultInfo.getConcern2());
+                result.put("고민2", consultInfo.getConcern2());
 
-            searchresult.add(result);
+            resultList.add(result);
         }
 
-        return searchresult.toString();
+        Gson gson = new Gson();
+        return gson.toJson(resultList);
     }
 
 
