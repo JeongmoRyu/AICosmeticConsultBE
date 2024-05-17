@@ -10,6 +10,7 @@ import ai.maum.mcl.skins.api.measure.service.MeasureService;
 import ai.maum.mcl.skins.api.member.model.MemberDetail;
 import ai.maum.mcl.skins.api.member.model.MemberInfo;
 import ai.maum.mcl.skins.api.member.model.MemberResult;
+import ai.maum.mcl.skins.api.member.model.MemberSearch;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,11 @@ import java.util.List;
 @Tag(name="사용자(고객)", description="사용자관리API")
 @RequestMapping("/api/member")
 public class MemberController {
+
     private final ConsultService consultService;
     private final MeasureService measureService;
     private final GeneService geneService;
+
     @Operation(summary = "고객정보조회", description = "고객정보조회(only 사용자정보)")
     @GetMapping("/info")
     public BaseResponse<MemberInfo> getMemberInfo(
@@ -40,6 +43,7 @@ public class MemberController {
 
         return BaseResponse.success(getMemberInfoFromMemberDetail(member));
     }
+
     public MemberInfo getMemberInfoFromMemberDetail(MemberDetail member) {
         return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge());
     }
@@ -56,21 +60,27 @@ public class MemberController {
 
         MemberResult memberResult = new MemberResult();
         Long userKey = Long.valueOf(member.getUsername());
-        if (userKey == null || userKey < 1L)
-            return BaseResponse.failure(null, "사용자 key 오류");
+
+        if(userKey == null || userKey < 1L)
+            return BaseResponse.failure(null, "사용자 Key 오류");
 
         MemberInfo memberInfoObj = getMemberInfoFromMemberDetail(member);
         List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
         List<MeasureInfo> measureInfoList = measureService.getMeasureInfoByUserKey(userKey);
         List<GeneInfo> geneInfoList = geneService.getGeneInfoByUserKey(userKey);
 
+//        String memberInfo = ObjectMapperUtil.writeValueAsString(memberInfoObj);
+//        String consultInfo = ObjectMapperUtil.writeValueAsString(consultInfoList);
+//        String measureInfo = ObjectMapperUtil.writeValueAsString(measureInfoList);
+//        String geneInfo = ObjectMapperUtil.writeValueAsString(geneInfoList);
+
         String memberInfo = memberInfoToString(memberInfoObj);
         String measureInfo = measureInfoToString(measureInfoList);
         String geneInfo = geneInfoToString(geneInfoList);
         String consultInfo = consultInfoToString(consultInfoList);
 
-
         memberResult = new MemberResult(memberInfo, consultInfo, measureInfo, geneInfo);
+
         return BaseResponse.success(memberResult);
     }
 
@@ -88,6 +98,7 @@ public class MemberController {
 
     private String consultInfoToString(List<ConsultInfo> consultInfos) {
         String result = new String();
+
         int index = 1;
         for(ConsultInfo consultInfo:consultInfos) {
             if(consultInfos.size() > 1)
@@ -106,47 +117,99 @@ public class MemberController {
                 result += String.format("기타(메모)-\"%s\",", consultInfo.getEtc());
             index++;
         }
+
         return result;
     }
 
     private String measureInfoToString(List<MeasureInfo> measureInfos) {
         String result = new String();
+
         int index = 1;
         for(MeasureInfo measureInfo:measureInfos) {
             if(measureInfos.size() > 1)
                 result += result.isBlank()?index + "차결과,":"\n" + index + "차결과,";
             result += String.format("T존:%s\nU존:%s\n", measureInfo.getTZoneResult(), measureInfo.getUZoneResult())
-                    + String.format("피부등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSolutionTypeNumber(), measureInfo.getSolutionTypeResult(), measureInfo.getSoultionTypeTip())
+                    + String.format("피부등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSolutionTypeNumber(), measureInfo.getSolutionTypeResult(), measureInfo.getSolutionTypeTip())
                     + String.format("민감등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSensitiveTypeNumber(), measureInfo.getSensitiveTypeResult(), measureInfo.getSensitiveTypeTip())
-                    + String.format("피부고민 - 1.피부의 노화관련 특성 \"모공:%s, 주름:%s, 미래주름:%s, 탄력:%s\" 2.피부의 밝음과 투명도 특성 \"색소침착:%s,멜라닌:%s\" 3. 피부의 외부 자극 반응도 특성 \"붉은기:%s, 포피린:%s, 경피수분손실:%s\","
-                        , measureInfo.getPoreString()
-                        , measureInfo.getWrinkleString()
-                        , measureInfo.getFuturewrinkleString()
-                        , measureInfo.getElasticityString()
-                        , measureInfo.getPigmemtationString()
-                        , measureInfo.getMelaninString()
-                        , measureInfo.getRednessString()
-                        , measureInfo.getPorphyrinString()
-                        , measureInfo.getTransdermalString();
-
-            index ++ ;
+                    + String.format("피부고민 - 1.피부의 노화관련 특성 \"모공:%s,주름:%s,미래주름:%s,탄력:%s\" 2.피부의 밝음과 투명도 특성 \"색소침착:%s,멜라닌:%s\" 3.피부의 외부 자극 반응도 특성 \"붉은기:%s,포피린:%s,경피수분손실:%s\""
+                            , measureInfo.getPoreString()
+                            , measureInfo.getWrinkleString()
+                            , measureInfo.getFuturewrinklesString()
+                            , measureInfo.getElasticityString()
+                            , measureInfo.getPigmemtationString()
+                            , measureInfo.getMelaninString()
+                            , measureInfo.getRednessString()
+                            , measureInfo.getPorphyrinString()
+                            , measureInfo.getTransdermalString());
+            index++;
         }
+
         return result;
     }
 
-    private  String geneInfoToString(List<GeneInfo> geneInfos) {
+    private String geneInfoToString(List<GeneInfo> geneInfos) {
         String result = new String();
+
         String prevCategoryName = "";
-        for(GeneInfo geneInfo: geneInfos) {
+        for(GeneInfo geneInfo:geneInfos) {
+
 //            log.debug(prevCategoryName + ":" + geneInfo.getCategoryName());
 
-            if (!prevCategoryName.equals(geneInfo.getCategoryName())) {
-                result += (result.isBlank() ? "[":"\n[") + geneInfo.getCategoryName() + "]\n";
+            if(!prevCategoryName.equals(geneInfo.getCategoryName())) {
+                result += (result.isBlank() ? "[" : "\n[") + geneInfo.getCategoryName() + "]\n";
             }
 //            result += geneInfo.getItemName() + ":" + geneInfo.getGradeName() + "-" + geneInfo.getDescription() + "\n";
-            result += geneInfo.getItemName() + ":" + geneInfo.getGradeName();
+            result += geneInfo.getItemName() + ":" + geneInfo.getGradeName() + ",";
             prevCategoryName = geneInfo.getCategoryName();
         }
+
         return result;
     }
+
+
+
+
+
+    @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
+    @GetMapping("/search")
+    public BaseResponse<MemberSearch> getMemberSearch(
+            @AuthenticationPrincipal MemberDetail member
+    ) {
+
+        MemberSearch memberSearch = new MemberSearch();
+        Long userKey = Long.valueOf(member.getUsername());
+
+        if(userKey == null || userKey < 1L)
+            return BaseResponse.failure(null, "사용자 Key 오류");
+
+        MemberInfo memberInfoObj = getMemberInfoFromMemberDetail(member);
+        List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
+
+        String memberInfo = memberInfoToString(memberInfoObj);
+        String consultInfo = consultListToString(consultInfoList);
+
+        memberSearch = new MemberSearch(memberInfo, consultInfo);
+
+        return BaseResponse.success(memberSearch);
+    }
+
+
+    private String consultListToString(List<ConsultInfo> consultInfos) {
+        String result = new String();
+
+        int index = 1;
+        for(ConsultInfo consultInfo:consultInfos) {
+            if(consultInfos.size() > 1)
+                result += (result.isBlank()?"[":"\n[") + index + "차 상담]\n";
+
+            if(consultInfo.getConcern1() != null && !consultInfo.getConcern1().isBlank())
+                result += String.format("피부고민1-%s,", consultInfo.getConcern1());
+            if(consultInfo.getConcern2() != null && !consultInfo.getConcern2().isBlank())
+                result += String.format("피부고민2-%s,", consultInfo.getConcern2());
+            index++;
+        }
+
+        return result;
+    }
+
 }

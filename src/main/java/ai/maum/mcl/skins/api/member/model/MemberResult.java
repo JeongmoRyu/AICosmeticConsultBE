@@ -13,11 +13,11 @@ public class MemberResult {
 
     public MemberResult(String memberInfo, String consultInfo, String measureInfo, String geneInfo) {
         this.memberInfo = memberInfo;
-        this.consultInfo = consultInfo;
         this.measureInfo = measureInfo;
         this.geneInfo = geneInfo;
+        this.consultInfo = consultInfo;
     }
-    public MemberResult() {
 
+    public MemberResult() {
     }
 }
