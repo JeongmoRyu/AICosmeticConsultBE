@@ -9,6 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MemberMapper {
     public MemberDetail findMemberById(Long id);
-    public MemberSearch findSearchMemberById(Long id);
-    public List<MemberDetail> findAllMembers();
+    public List<MemberSearch> findSearchMemberById();
 }

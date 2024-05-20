@@ -10,6 +10,8 @@ import ai.maum.mcl.skins.api.measure.service.MeasureService;
 import ai.maum.mcl.skins.api.member.model.MemberDetail;
 import ai.maum.mcl.skins.api.member.model.MemberInfo;
 import ai.maum.mcl.skins.api.member.model.MemberResult;
+import ai.maum.mcl.skins.api.member.model.MemberSearch;
+import ai.maum.mcl.skins.api.member.service.MemberDetailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +33,7 @@ public class ExtMemberController {
     private final ConsultService consultService;
     private final MeasureService measureService;
     private final GeneService geneService;
+    private final MemberDetailService memberService;
 
     @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
     @GetMapping("/result")
@@ -146,5 +150,35 @@ public class ExtMemberController {
         }
 
         return result;
+    }
+
+
+    @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
+    @GetMapping("/search")
+    public BaseResponse<List<MemberSearch>> getMemberSearch() {
+
+        List<MemberSearch> allMembers = memberService.loadUsersList();
+        log.debug(allMembers.toString());
+        List<MemberSearch> memberSearchList = new ArrayList<>();
+
+        for (MemberSearch member : allMembers) {
+
+            MemberSearch memberSearch = new MemberSearch(
+                    member.getId(),
+                    member.getName(),
+                    member.getSex(),
+                    member.getAge(),
+                    member.getConcern1(),
+                    member.getConcern2(),
+                    member.getConsultCount(),
+                    member.getBirthday(),
+                    member.getPhone(),
+                    member.getBirthCd(),
+                    member.getExtractedYear()
+            );
+
+            memberSearchList.add(memberSearch);
+        }
+        return BaseResponse.success(memberSearchList);
     }
 }

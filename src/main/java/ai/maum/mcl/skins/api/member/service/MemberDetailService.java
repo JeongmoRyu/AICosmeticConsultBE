@@ -1,10 +1,7 @@
 package ai.maum.mcl.skins.api.member.service;
 
-import ai.maum.mcl.skins.api.consult.model.ConsultInfo;
-import ai.maum.mcl.skins.api.consult.service.ConsultService;
 import ai.maum.mcl.skins.api.member.mapper.MemberMapper;
 import ai.maum.mcl.skins.api.member.model.MemberDetail;
-
 import ai.maum.mcl.skins.api.member.model.MemberSearch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +38,11 @@ public class MemberDetailService implements UserDetailsService {
         List<MemberSearch> allMembers = new ArrayList<>();
         try {
             allMembers = memberMapper.findSearchMemberById();
+            log.debug(allMembers.toString());
+
         } catch (Exception e) {
             log.error(e.getMessage());
         }
         return allMembers;
     }
-
 }
