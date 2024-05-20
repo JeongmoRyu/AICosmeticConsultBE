@@ -1,6 +1,11 @@
 package ai.maum.mcl.skins.conf.security;
 
+import ai.maum.mcl.skins.api.apiuser.service.ApiUserService;
+import ai.maum.mcl.skins.api.member.service.MemberDetailService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.server.servlet.OAuth2AuthorizationServerJwtAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +19,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${service.cors.origins}")
@@ -27,6 +33,14 @@ public class SecurityConfig {
 
     @Value("${service.cors.credentials}")
     private boolean credentials;
+
+    @Value("${service.jwt.key}")
+    private String jwtKey;
+
+    private final ApiUserService apiUserService;
+    private final MemberDetailService memberDetailService;
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -44,12 +58,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    @Bean
     public APIKeyAuthFilter apiKeyAuthFilter() {
-        return new APIKeyAuthFilter();
+        return new APIKeyAuthFilter(apiUserService, memberDetailService);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtKey);
     }
 }

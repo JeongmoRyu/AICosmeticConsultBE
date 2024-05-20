@@ -5,8 +5,16 @@
 
 <mapper namespace="ai.maum.mcl.skins.api.consult.mapper.ConsultMapper">
     <select id="getConsultInfoByUserKey" resultType="ai.maum.mcl.skins.api.consult.model.ConsultInfo" parameterType="Long">
-        SELECT id, consult_date, userkey, consult_data, concern1, concern2, product, significant, etc
-        FROM tb_consul_info
+        SELECT id
+             , consult_date
+             , userkey
+             , consult_data
+             , concern1
+             , concern2
+             , product
+             , significant
+             , etc
+        FROM tb_consult_info
         where userkey = #{userKey}
     </select>
 </mapper>

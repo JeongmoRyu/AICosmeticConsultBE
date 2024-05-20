@@ -17,6 +17,9 @@ public class RegexMeta {
 //    public static final String SSO_PATH = "/login/email4Sync|/sso/.*";
 //    public static final String ADMIN_PATH = "/maum-admin/.*";
 //    public static final String EXTAPI_PATH = "/extapi/.*";
-    public static final String SWAGGER_PATHS = "/swagger-ui/.*|/v3/api-docs.*";
+//    public static final String SWAGGER_PATHS = "/swagger-ui/.*|/v3/api-docs.*";
     public static final String PUBLICAPI_PATH = "/api/public/.*";
+    public static final String SWAGGER_PATHS = "/swagger-ui/.*|/v3/api-docs.*";
+    public static final String EXTAPI_PATH = "/extapi/.*";
+    public static final String SERVICEAPI_PATH = "/api/.*";
 }

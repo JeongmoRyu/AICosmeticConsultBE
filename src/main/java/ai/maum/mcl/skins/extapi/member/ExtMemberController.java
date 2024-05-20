@@ -1,4 +1,4 @@
-package ai.maum.mcl.skins.api.member;
+package ai.maum.mcl.skins.extapi.member;
 
 import ai.maum.mcl.skins.api.common.BaseResponse;
 import ai.maum.mcl.skins.api.consult.model.ConsultInfo;
@@ -10,48 +10,26 @@ import ai.maum.mcl.skins.api.measure.service.MeasureService;
 import ai.maum.mcl.skins.api.member.model.MemberDetail;
 import ai.maum.mcl.skins.api.member.model.MemberInfo;
 import ai.maum.mcl.skins.api.member.model.MemberResult;
-import ai.maum.mcl.skins.api.member.model.MemberSearch;
-import ai.maum.mcl.skins.util.ObjectMapperUtil;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import ai.maum.mcl.skins.api.member.service.MemberDetailService;
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Tag(name="사용자(고객)", description="사용자관리API")
-@RequestMapping("/api/member")
-public class MemberController {
-
+@Tag(name="외부시스템용-사용자(고객)", description="외부시스템용-사용자(고객)정보 관련 API")
+@RequestMapping("/extapi/member")
+public class ExtMemberController {
     private final ConsultService consultService;
     private final MeasureService measureService;
     private final GeneService geneService;
-    private final MemberDetailService memberService;
-    @Operation(summary = "고객정보조회", description = "고객정보조회(only 사용자정보)")
-    @GetMapping("/info")
-    public BaseResponse<MemberInfo> getMemberInfo(
-            @AuthenticationPrincipal MemberDetail member
-    ) {
-        log.debug("user_key:" + member.getUsername());
-        log.debug("name:" + member.getName());
-        log.debug("sex:" + member.getSex());
-        log.debug("age:" + member.getAge());
-
-        return BaseResponse.success(getMemberInfoFromMemberDetail(member));
-    }
-
-    public MemberInfo getMemberInfoFromMemberDetail(MemberDetail member) {
-        return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge());
-    }
 
     @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
     @GetMapping("/result")
@@ -82,6 +60,10 @@ public class MemberController {
         memberResult = new MemberResult(memberInfo, consultInfo, measureInfo, geneInfo);
 
         return BaseResponse.success(memberResult);
+    }
+
+    public MemberInfo getMemberInfoFromMemberDetail(MemberDetail member) {
+        return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge());
     }
 
     private String memberInfoToString(MemberInfo memberInfo) {
@@ -132,15 +114,15 @@ public class MemberController {
                     + String.format("피부등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSolutionTypeNumber(), measureInfo.getSolutionTypeResult(), measureInfo.getSolutionTypeTip())
                     + String.format("민감등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSensitiveTypeNumber(), measureInfo.getSensitiveTypeResult(), measureInfo.getSensitiveTypeTip())
                     + String.format("피부고민 - 1.피부의 노화관련 특성 \"모공:%s,주름:%s,미래주름:%s,탄력:%s\" 2.피부의 밝음과 투명도 특성 \"색소침착:%s,멜라닌:%s\" 3.피부의 외부 자극 반응도 특성 \"붉은기:%s,포피린:%s,경피수분손실:%s\""
-                            , measureInfo.getPoreString()
-                            , measureInfo.getWrinkleString()
-                            , measureInfo.getFuturewrinklesString()
-                            , measureInfo.getElasticityString()
-                            , measureInfo.getPigmemtationString()
-                            , measureInfo.getMelaninString()
-                            , measureInfo.getRednessString()
-                            , measureInfo.getPorphyrinString()
-                            , measureInfo.getTransdermalString());
+                    , measureInfo.getPoreString()
+                    , measureInfo.getWrinkleString()
+                    , measureInfo.getFuturewrinklesString()
+                    , measureInfo.getElasticityString()
+                    , measureInfo.getPigmemtationString()
+                    , measureInfo.getMelaninString()
+                    , measureInfo.getRednessString()
+                    , measureInfo.getPorphyrinString()
+                    , measureInfo.getTransdermalString());
             index++;
         }
 
@@ -164,57 +146,5 @@ public class MemberController {
         }
 
         return result;
-    }
-
-    
-    @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
-    @GetMapping("/search")
-    public BaseResponse<List<MemberSearch>> getMemberSearch() {
-
-        List<MemberSearch> allMembers = memberService.loadUsersList();
-        List<MemberSearch> memberSearchList = new ArrayList<>();
-
-        for (MemberSearch member : allMembers) {
-//            Long userKey = null;
-//            try {
-//                if (member.getUsername() != null) {
-//                    userKey = Long.valueOf(member.getUsername());
-//                }
-//            } catch (NumberFormatException e){
-//                log.error("NumberFormatException: " + e.getMessage());
-//                continue;
-//            }
-//            Long userKey = Long.valueOf(member.getUsername());
-
-            String birthday = member.getBirthyear();
-            String birthYear = null;
-            if (birthday != null && birthday.length() >= 4) {
-                birthYear = birthday.substring(0, 4);
-            }
-
-            MemberSearch memberSearch = new MemberSearch(
-                    member.getId(),
-                    member.getName(),
-                    member.getSex(),
-                    member.getAge(),
-                    member.getConcern1(),
-                    member.getConcern2(),
-                    member.getVisitNum(),
-                    birthYear,
-                    member.getPhone()
-                    );
-
-            memberSearchList.add(memberSearch);
-        }
-        return BaseResponse.success(memberSearchList);
-    }
-    
-    @Operation(summary = "고객List", description = "고객 목록 조회")
-    @GetMapping("/list")
-    public BaseResponse<List<MemberInfo>> getMemberList(
-            @AuthenticationPrincipal MemberDetail member
-    ) {
-        List<MemberInfo> memberList = new ArrayList<MemberInfo>();
-        return BaseResponse.success(memberList);
     }
 }

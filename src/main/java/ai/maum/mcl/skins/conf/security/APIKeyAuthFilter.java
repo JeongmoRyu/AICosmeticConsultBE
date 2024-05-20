@@ -25,11 +25,6 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class APIKeyAuthFilter extends OncePerRequestFilter {
-//    private static final String HEADER_NAME_API_KEY = "Api-Key";
-//    private static final String HEADER_NAME_VENDOR_ID = "Vendor-Id";
-//    private static final String HEADER_NAME_MEMBER_ID = "Member-Id";
-//    private final ApiUserDetailService apiUserDetailService;
-
     @Autowired
     ApiUserService apiUserService;
 
@@ -46,46 +41,119 @@ public class APIKeyAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String apiKey = request.getHeader(ConstantsMeta.HEADER_NAME_API_KEY);
-        String vendorId = request.getHeader(ConstantsMeta.HEADER_NAME_VENDOR_ID);
-        String memberId = request.getHeader(ConstantsMeta.HEADER_NAME_MEMBER_ID);
+            String apiKey = request.getHeader(ConstantsMeta.HEADER_NAME_API_KEY);
+            String vendorId = request.getHeader(ConstantsMeta.HEADER_NAME_VENDOR_ID);
+            String memberId = request.getHeader(ConstantsMeta.HEADER_NAME_MEMBER_ID);
 
-        if(apiKey == null || vendorId == null || memberId == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("No API Key or No Vendor Id found in request headers");
-            return;
-        }
+            if(apiKey == null || vendorId == null || memberId == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("No API Key or No Vendor Id found in request headers");
+                return;
+            }
 
-        ApiUser apiUser = apiUserService.getApiUser(vendorId);
+            ApiUser apiUser = apiUserService.getApiUser(vendorId);
 
 //        //api key validate check
-        if(!apiKey.equals(apiUser.getApiKey())) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(vendorId + " api key is invalid");
-            return;
-        } else if (!"Y".equals(apiUser.getUseYn())) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(vendorId + " is disabled");
-            return;
-        }
+            if(!apiKey.equals(apiUser.getApiKey())) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(vendorId + " api key is invalid");
+                return;
+            } else if (!"Y".equals(apiUser.getUseYn())) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(vendorId + " is disabled");
+                return;
+            }
 
-        //api validate check 이후 사용자 정보 Set
-        UserDetails userDetails = memberDetailService.loadUserByUsername(memberId);
+            //api validate check 이후 사용자 정보 Set
+            UserDetails userDetails = memberDetailService.loadUserByUsername(memberId);
 
-        if(userDetails == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            if(userDetails == null) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write(memberId + "not found");
-            return;
-        }
+                return;
+            }
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                userDetails.getPassword(),
-                userDetails.getAuthorities()
-        );
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    userDetails.getPassword(),
+                    userDetails.getAuthorities()
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
     }
 }
+
+// @Component
+// public class APIKeyAuthFilter extends OncePerRequestFilter {
+
+//     private ApiUserService apiUserService;
+//     private MemberDetailService memberDetailService;
+
+//     public APIKeyAuthFilter(ApiUserService apiUserService, MemberDetailService memberDetailService) {
+//         this.apiUserService = apiUserService;
+//         this.memberDetailService = memberDetailService;
+//     }
+
+//     @Override
+//     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//         //미인증 URL 예외 처리
+//         String requestURI = request.getRequestURI();
+
+
+//         if(StringUtil.matches(requestURI, RegexMeta.EXTAPI_PATH)) {
+//             String apiKey = request.getHeader(ConstantsMeta.HEADER_NAME_API_KEY);
+//             String vendorId = request.getHeader(ConstantsMeta.HEADER_NAME_VENDOR_ID);
+//             String memberId = request.getHeader(ConstantsMeta.HEADER_NAME_MEMBER_ID);
+
+//             if(apiKey == null || vendorId == null || memberId == null) {
+//                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                 response.getWriter().write("No API Key or No Vendor Id found in request headers");
+//                 return;
+//             }
+
+//             ApiUser apiUser = apiUserService.getApiUser(vendorId);
+
+// //        //api key validate check
+//             if(!apiKey.equals(apiUser.getApiKey())) {
+//                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                 response.getWriter().write(vendorId + " api key is invalid");
+//                 return;
+//             } else if (!"Y".equals(apiUser.getUseYn())) {
+//                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                 response.getWriter().write(vendorId + " is disabled");
+//                 return;
+//             }
+
+//             //api validate check 이후 사용자 정보 Set
+//             UserDetails userDetails = memberDetailService.loadUserByUsername(memberId);
+
+//             if(userDetails == null) {
+//                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//                 response.getWriter().write(memberId + " not found");
+//                 return;
+//             }
+
+//             Authentication authentication = new UsernamePasswordAuthenticationToken(
+//                     userDetails,
+//                     userDetails.getPassword(),
+//                     userDetails.getAuthorities()
+//             );
+
+//             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+//             filterChain.doFilter(request, response);
+
+//         } else if (StringUtil.matches(requestURI, RegexMeta.PUBLICAPI_PATH)
+//                 || StringUtil.matches(requestURI, RegexMeta.SWAGGER_PATHS)
+//                 || StringUtil.matches(requestURI, RegexMeta.SERVICEAPI_PATH)
+//         ) {
+//             filterChain.doFilter(request, response);
+//         } else {
+//             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//             response.getWriter().write("No API Key or No Vendor Id found in request headers");
+//             return;
+//         }
+//     }
+// }
