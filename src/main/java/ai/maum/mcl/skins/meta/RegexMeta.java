@@ -22,4 +22,5 @@ public class RegexMeta {
     public static final String SWAGGER_PATHS = "/swagger-ui/.*|/v3/api-docs.*";
     public static final String EXTAPI_PATH = "/extapi/.*";
     public static final String SERVICEAPI_PATH = "/api/.*";
+    public static final String LOGIN_PATH = "/api/auth/.*";
 }

@@ -5,25 +5,24 @@ import ai.maum.mcl.skins.api.consult.model.ConsultInfo;
 import ai.maum.mcl.skins.api.consult.service.ConsultService;
 import ai.maum.mcl.skins.api.gene.model.GeneInfo;
 import ai.maum.mcl.skins.api.gene.service.GeneService;
+import ai.maum.mcl.skins.api.manager.model.Manager;
 import ai.maum.mcl.skins.api.measure.model.MeasureInfo;
 import ai.maum.mcl.skins.api.measure.service.MeasureService;
-import ai.maum.mcl.skins.api.member.model.MemberDetail;
-import ai.maum.mcl.skins.api.member.model.MemberInfo;
+import ai.maum.mcl.skins.api.member.model.Member;
 import ai.maum.mcl.skins.api.member.model.MemberResult;
 import ai.maum.mcl.skins.api.member.model.MemberSearch;
-import ai.maum.mcl.skins.util.ObjectMapperUtil;
-
+import ai.maum.mcl.skins.api.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import ai.maum.mcl.skins.api.member.service.MemberDetailService;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -35,46 +34,55 @@ public class MemberController {
     private final ConsultService consultService;
     private final MeasureService measureService;
     private final GeneService geneService;
-    private final MemberDetailService memberService;
+    private final MemberService memberService;
+
     @Operation(summary = "고객정보조회", description = "고객정보조회(only 사용자정보)")
-    @GetMapping("/info")
-    public BaseResponse<MemberInfo> getMemberInfo(
-            @AuthenticationPrincipal MemberDetail member
+    @GetMapping("/info/{member_id}")
+    public BaseResponse<Member> getMemberInfo(
+//            @AuthenticationPrincipal UserDetails user,
+            @AuthenticationPrincipal Manager user,
+            @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
     ) {
-        log.debug("user_key:" + member.getUsername());
+
+//        log.debug("manger_id:" + user.getUsername());
+        log.debug("manger_id:" + user.getManagerId());
+
+
+        Member member = memberService.getMemberById(memberId);
+
+        log.debug("user_key:" + member.getId());
         log.debug("name:" + member.getName());
         log.debug("sex:" + member.getSex());
         log.debug("age:" + member.getAge());
 
-        return BaseResponse.success(getMemberInfoFromMemberDetail(member));
-    }
-
-    public MemberInfo getMemberInfoFromMemberDetail(MemberDetail member) {
-        return new MemberInfo(member.getUsername(), member.getName(), member.getSex(), member.getAge());
+        return BaseResponse.success(member);
     }
 
     @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
     @GetMapping("/result")
     public BaseResponse<MemberResult> getMemberResult(
-            @AuthenticationPrincipal MemberDetail member
+//            @AuthenticationPrincipal MemberDetail member
+            @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
     ) {
-        log.debug("user_key:" + member.getUsername());
+        Member member = memberService.getMemberById(memberId);
+
+        log.debug("user_key:" + member.getId());
         log.debug("name:" + member.getName());
         log.debug("sex:" + member.getSex());
         log.debug("age:" + member.getAge());
 
         MemberResult memberResult = new MemberResult();
-        Long userKey = Long.valueOf(member.getUsername());
+//        Long userKey = Long.valueOf(member.getUsername());
+//
+//        if(userKey == null || userKey < 1L)
+//            return BaseResponse.failure(null, "사용자 Key 오류");
 
-        if(userKey == null || userKey < 1L)
-            return BaseResponse.failure(null, "사용자 Key 오류");
+//        Member memberObj = getMemberInfoFromMemberDetail(member);
+        List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(memberId);
+        List<MeasureInfo> measureInfoList = measureService.getMeasureInfoByUserKey(memberId);
+        List<GeneInfo> geneInfoList = geneService.getGeneInfoByUserKey(memberId);
 
-        MemberInfo memberInfoObj = getMemberInfoFromMemberDetail(member);
-        List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(userKey);
-        List<MeasureInfo> measureInfoList = measureService.getMeasureInfoByUserKey(userKey);
-        List<GeneInfo> geneInfoList = geneService.getGeneInfoByUserKey(userKey);
-
-        String memberInfo = memberInfoToString(memberInfoObj);
+        String memberInfo = memberInfoToString(member);
         String measureInfo = measureInfoToString(measureInfoList);
         String geneInfo = geneInfoToString(geneInfoList);
         String consultInfo = consultInfoToString(consultInfoList);
@@ -84,14 +92,14 @@ public class MemberController {
         return BaseResponse.success(memberResult);
     }
 
-    private String memberInfoToString(MemberInfo memberInfo) {
-        String name = memberInfo.getName();
-        String sex = switch (memberInfo.getSex()) {
+    private String memberInfoToString(Member member) {
+        String name = member.getName();
+        String sex = switch (member.getSex()) {
             case ("F") -> "여성";
             case ("M") -> "남성";
             default -> "";
         };
-        Integer age = memberInfo.getAge();
+        Integer age = member.getAge();
 
         return String.format("이름:%s\n성별:%s\n나이%d", name, sex, age);
     }
@@ -166,7 +174,16 @@ public class MemberController {
         return result;
     }
 
-    
+    @Operation(summary = "고객List", description = "고객 목록 조회")
+    @GetMapping("/list")
+    public BaseResponse<List<Member>> getMemberList(
+//            @AuthenticationPrincipal MemberDetail member
+    ) {
+        List<Member> memberList = new ArrayList<Member>();
+        return BaseResponse.success(memberList);
+    }
+
+
     @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
     @GetMapping("/search")
     public BaseResponse<List<MemberSearch>> getMemberSearch() {
@@ -175,22 +192,6 @@ public class MemberController {
         List<MemberSearch> memberSearchList = new ArrayList<>();
 
         for (MemberSearch member : allMembers) {
-//            Long userKey = null;
-//            try {
-//                if (member.getUsername() != null) {
-//                    userKey = Long.valueOf(member.getUsername());
-//                }
-//            } catch (NumberFormatException e){
-//                log.error("NumberFormatException: " + e.getMessage());
-//                continue;
-//            }
-//            Long userKey = Long.valueOf(member.getUsername());
-
-            String birthday = member.getBirthyear();
-            String birthYear = null;
-            if (birthday != null && birthday.length() >= 4) {
-                birthYear = birthday.substring(0, 4);
-            }
 
             MemberSearch memberSearch = new MemberSearch(
                     member.getId(),
@@ -199,22 +200,18 @@ public class MemberController {
                     member.getAge(),
                     member.getConcern1(),
                     member.getConcern2(),
-                    member.getVisitNum(),
-                    birthYear,
-                    member.getPhone()
-                    );
+                    member.getConsultCount(),
+                    member.getBirthday(),
+                    member.getPhone(),
+                    member.getBirthCd(),
+                    member.getExtractedYear()
+            );
 
             memberSearchList.add(memberSearch);
         }
         return BaseResponse.success(memberSearchList);
     }
-    
-    @Operation(summary = "고객List", description = "고객 목록 조회")
-    @GetMapping("/list")
-    public BaseResponse<List<MemberInfo>> getMemberList(
-            @AuthenticationPrincipal MemberDetail member
-    ) {
-        List<MemberInfo> memberList = new ArrayList<MemberInfo>();
-        return BaseResponse.success(memberList);
-    }
+
+
+
 }

@@ -1,6 +1,5 @@
 package ai.maum.mcl.skins.api.hello;
 
-import ai.maum.mcl.skins.api.member.model.MemberDetail;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +7,6 @@ import org.jasypt.util.text.AES256TextEncryptor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @Slf4j
 @RestController
@@ -40,12 +38,8 @@ public class HelloWorldController {
 //    @Operation(summary = "테스트-apikey", description = "apikey 테스트용 api (일반)")
 //    @GetMapping("/api/keytest")
     public ResponseEntity<String> apiKeyTestSecure(
-            @AuthenticationPrincipal MemberDetail member
     ) {
-//        MemberDetailVO member = (MemberDetailVO) SecurityContextHolder.getContext().getAuthentication();
-        log.debug("member:" + member.getName());
-        log.debug("sex:" + member.getSex());
-        log.debug("age:" + member.getAge());
+
         return ResponseEntity.ok("Secure data accessed");
     }
 

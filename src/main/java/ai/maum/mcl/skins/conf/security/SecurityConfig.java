@@ -1,19 +1,23 @@
 package ai.maum.mcl.skins.conf.security;
 
 import ai.maum.mcl.skins.api.apiuser.service.ApiUserService;
-import ai.maum.mcl.skins.api.member.service.MemberDetailService;
+import ai.maum.mcl.skins.api.manager.service.ManagerLoginService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.server.servlet.OAuth2AuthorizationServerJwtAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
 
 import java.util.List;
 
@@ -38,8 +42,19 @@ public class SecurityConfig {
     private String jwtKey;
 
     private final ApiUserService apiUserService;
-    private final MemberDetailService memberDetailService;
+//    private final ManagerLoginService managerLoginService;
+//    private final MemberDetailService memberDetailService;
 
+
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -56,7 +71,7 @@ public class SecurityConfig {
                         }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/public/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -64,7 +79,8 @@ public class SecurityConfig {
     }
 
     public APIKeyAuthFilter apiKeyAuthFilter() {
-        return new APIKeyAuthFilter(apiUserService, memberDetailService);
+//        return new APIKeyAuthFilter(apiUserService, memberDetailService);
+        return new APIKeyAuthFilter(apiUserService);
     }
 
     @Bean
