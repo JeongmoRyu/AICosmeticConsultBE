@@ -17,44 +17,37 @@
         FROM tb_consult_info
         where userkey = #{userKey}
     </select>
-        <select id="getConsultIndirectInfo" resultType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect" parameterType="Long">
-        SELECT 
-    a.name,
-    a.consult_date,
-    a.concern1,
-    a.concern2,
-    a.product,
-    a.manager,
-    a.region,
-    a.consult_type as caseType,
-    a.consult_data as consultInfo,
-    a.significant
-FROM 
-    y_consult_raw_labtome a
-LEFT JOIN 
-    citylab_member c ON a.name = c.name
-WHERE 
-    a.name = (SELECT name FROM citylab_member WHERE id = #{id})
+    <select id="getConsultIndirectInfo" resultType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect" parameterType="Long">
+        SELECT a.name
+             , a.consult_date
+             , a.concern1
+             , a.concern2
+             , a.product
+             , a.manager
+             , a.region
+             , a.consult_type as caseType
+             , a.consult_data as consultInfo
+             , a.significant
+        FROM y_consult_raw_labtome a
+        LEFT JOIN citylab_member c ON a.name = c.name
+        LEFT JOIN y_consult_raw_iopelab b ON a.name = b.name
+        WHERE a.name = (SELECT name FROM citylab_member WHERE id = #{id})
 
-UNION ALL
+        UNION ALL
 
-SELECT 
-    b.name,
-    b.consult_date,
-    b.concern1,
-    b.concern2,
-    b.product,
-    b.manager,
-    b.region,
-    b.consult_type as caseType,
-    b.consult_data as consultInfo,
-    b.significant
-FROM 
-    y_consult_raw_iopelab b
-LEFT JOIN 
-    citylab_member c ON b.name = c.name
-WHERE 
-    b.name = (SELECT name FROM citylab_member WHERE id = #{id});
-
+        SELECT
+            b.name,
+            b.consult_date,
+            b.concern1,
+            b.concern2,
+            b.product,
+            NULL as manager,
+            NULL as region,
+            NULL as caseType,
+            b.consult_data as consultInfo,
+            NULL as significant
+        FROM y_consult_raw_iopelab b
+        LEFT JOIN citylab_member c ON b.name = c.name
+        WHERE b.name = (SELECT name FROM citylab_member WHERE id = #{id});
     </select>
 </mapper>

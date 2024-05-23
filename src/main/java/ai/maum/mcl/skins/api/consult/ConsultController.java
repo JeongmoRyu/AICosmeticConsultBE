@@ -1,6 +1,7 @@
 package ai.maum.mcl.skins.api.consult;
 
 import ai.maum.mcl.skins.api.common.BaseResponse;
+import ai.maum.mcl.skins.api.consult.model.ConsultIndirect;
 import ai.maum.mcl.skins.api.consult.model.ConsultInfo;
 import ai.maum.mcl.skins.api.consult.service.ConsultService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,10 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,19 +20,37 @@ import java.util.List;
 @RequestMapping("/api/consult")
 public class ConsultController {
     private final ConsultService consultService;
-    @Operation(summary = "상담정보조회", description = "상담정보조회")
-    @GetMapping("/info/{member_id}")
+    @Operation(summary = "상담정보조회", description = "consult_number가 없으면 전체, 이후 index로")
+    @GetMapping({"/info/{member_id}", "/info/{member_id}/{consult_number}"})
     public BaseResponse<List<ConsultInfo>> responseConsultInfo(
 //            @AuthenticationPrincipal MemberDetail member
             @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long userKey
+//            ,@PathVariable(name = "consult_number", required = false) @Parameter(name = "consult_number") Integer consultNumber
     ) {
 //        Long userKey = Long.valueOf(member.getUsername());
 //        if(userKey == null || userKey < 1L)
 //            return BaseResponse.failure(null, "사용자 key 오류");
         return BaseResponse.success(getConsultInfo(userKey));
+//        return BaseResponse.success(getConsultInfo(userKey, consultNumber));
     }
 
     public List<ConsultInfo> getConsultInfo(Long userKey) {
         return consultService.getConsultInfoByUserKey(userKey);
     }
+//    public List<ConsultInfo> getConsultInfo(Long userKey, Integer consultNumber) {
+//        return consultService.getConsultInfoByUserKey(userKey, consultNumber);
+//    }
+    @Operation(summary = "비대면상담기록(해당이름전체)", description = "비대면상담기록(비대면상담기록(전체))")
+    @GetMapping("/indirect/{member_id}")
+    public BaseResponse<List<ConsultIndirect>> responseConsultIndirectInfo(
+            @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long id
+    ) {
+
+        return BaseResponse.success(getConsultIndirectInfo(id));
+    }
+
+    public List<ConsultIndirect> getConsultIndirectInfo(Long id) {
+        return consultService.getConsultIndirectInfo(id);
+    }
+
 }
