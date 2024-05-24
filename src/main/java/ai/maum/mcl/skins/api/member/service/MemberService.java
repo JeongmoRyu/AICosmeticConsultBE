@@ -31,4 +31,13 @@ public class MemberService {
         }
         return allMembers;
     }
+    public List<MemberSearch> loadUsersListByName(String name) {
+    List<MemberSearch> allMembers = new ArrayList<>();
+    try {
+        allMembers = memberMapper.findSearchMemberByName(name);
+    } catch (Exception e) {
+        log.error(e.getMessage());
+    }
+    return allMembers;
+}
 }

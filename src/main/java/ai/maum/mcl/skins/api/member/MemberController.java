@@ -212,6 +212,31 @@ public class MemberController {
         return BaseResponse.success(memberSearchList);
     }
 
+     @Operation(summary = "고객이름으로 조회", description = "고객 이름으로 조회")
+    @GetMapping("/list/{name}")
+    public BaseResponse<List<MemberSearch>> getMemberListByName(@PathVariable String name) {
+        List<MemberSearch> membersByName = memberService.loadUsersListByName(name);
+        List<MemberSearch> memberSearchList = new ArrayList<>();
+
+        for (MemberSearch member : membersByName) {
+            MemberSearch memberSearch = new MemberSearch(
+                    member.getId(),
+                    member.getName(),
+                    member.getSex(),
+                    member.getAge(),
+                    member.getConcern1(),
+                    member.getConcern2(),
+                    member.getConsultCount(),
+                    member.getBirthday(),
+                    member.getPhone(),
+                    member.getBirthCd(),
+                    member.getExtractedYear()
+            );
+            memberSearchList.add(memberSearch);
+        }
+        return BaseResponse.success(memberSearchList);
+    }
+
 
 
 }
