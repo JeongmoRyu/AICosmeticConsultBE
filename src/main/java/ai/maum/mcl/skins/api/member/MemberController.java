@@ -212,14 +212,15 @@ public class MemberController {
         return BaseResponse.success(memberSearchList);
     }
 
-     @Operation(summary = "고객이름으로 조회", description = "고객 이름으로 조회")
-    @GetMapping("/list/{name}")
-    public BaseResponse<List<MemberSearch>> getMemberListByName(@PathVariable String name) {
-        List<MemberSearch> membersByName = memberService.loadUsersListByName(name);
-        List<MemberSearch> memberSearchList = new ArrayList<>();
 
-        for (MemberSearch member : membersByName) {
-            MemberSearch memberSearch = new MemberSearch(
+    @Operation(summary = "고객이름 및 나이로 조회", description = "고객 이름 및 나이로 조회")
+    @GetMapping({"/list/{name}", "/list/{age}"})
+    public BaseResponse<List<MemberList>> getMemberListByName(@PathVariable String name, @PathVariable Integer age ) {
+        List<MemberList> membersByName = memberService.loadUsersListByNameOrAge(name, age);
+        List<MemberList> memberSearchList = new ArrayList<>();
+
+        for (MemberList member : membersByName) {
+            MemberList memberSearch = new MemberList(
                     member.getId(),
                     member.getName(),
                     member.getSex(),
@@ -236,7 +237,6 @@ public class MemberController {
         }
         return BaseResponse.success(memberSearchList);
     }
-
 
 
 }

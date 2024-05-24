@@ -31,13 +31,13 @@ public class MemberService {
         }
         return allMembers;
     }
-    public List<MemberSearch> loadUsersListByName(String name) {
-    List<MemberSearch> allMembers = new ArrayList<>();
-    try {
-        allMembers = memberMapper.findSearchMemberByName(name);
-    } catch (Exception e) {
-        log.error(e.getMessage());
+    public List<MemberList> loadUsersListByNameOrAge(@RequestParam String name, @RequestParam Integer age) {
+        List<MemberList> allMembers = new ArrayList<>();
+        try {
+            allMembers = memberMapper.findListMemberById(name, age);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return allMembers;
     }
-    return allMembers;
-}
 }

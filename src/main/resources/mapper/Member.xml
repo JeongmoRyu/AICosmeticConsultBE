@@ -25,6 +25,14 @@
             <if test="name != null">
                 AND a.name = #{name}
             </if>
+            <if test="age != null">
+                AND (YEAR(CURDATE()) - YEAR(a.birthday)) -
+                    CASE
+                        WHEN DATE_FORMAT(CURDATE(), '%m%d') &lt; DATE_FORMAT(a.birthday, '%m%d')
+                THEN 1
+                ELSE 0
+                END) = #{age}
+            </if>
         </where>
     </select>
 </mapper>
