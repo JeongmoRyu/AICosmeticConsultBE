@@ -11,7 +11,8 @@ import java.util.List;
 @Repository
 public interface MemberMapper {
     public Member findMemberById(Long id);
-    public List<MemberSearch> findSearchMemberById();
-    public List<MemberList> findListMemberById(String name, Integer age);
+    public List<MemberSearch> findListMemberById(String order);
+    public List<MemberList> findListMemberById(String name, String order);
 
 }
+

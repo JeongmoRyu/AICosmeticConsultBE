@@ -212,14 +212,48 @@ public class MemberController {
         return BaseResponse.success(memberSearchList);
     }
 
+    @Operation(summary = "리스트", description = "리스트")
+    @GetMapping("/list")
+    public BaseResponse<List<MemberList>> getMemberList(
+        @RequestParam(required = false, defaultValue = "asc") String order
+        ) {
+
+
+        List<MemberList> allMembers = memberService.loadUsersList(order);
+        List<MemberList> memberListList = new ArrayList<>();
+
+        for (MemberList member : allMembers) {
+            MemberList memberSearch = new MemberList(
+                    member.getId(),
+                    member.getName(),
+                    member.getSex(),
+                    member.getAge(),
+                    member.getConcern1(),
+                    member.getConcern2(),
+                    member.getConsultCount(),
+                    member.getBirthday(),
+                    member.getPhone(),
+                    member.getBirthCd(),
+                    member.getExtractedYear()
+            );
+            memberSearchList.add(memberList);
+        }
+        return BaseResponse.success(memberListList);
+    }
+
 
     @Operation(summary = "고객이름 및 나이로 조회", description = "고객 이름 및 나이로 조회")
-    @GetMapping({"/list/{name}", "/list/{age}"})
-    public BaseResponse<List<MemberList>> getMemberListByName(@PathVariable String name, @PathVariable Integer age ) {
-        List<MemberList> membersByName = memberService.loadUsersListByNameOrAge(name, age);
+    @GetMapping("/list/{name}")
+    public BaseResponse<List<MemberList>> getMemberListByNameOrAge(
+        @PathVariable String name,
+        @RequestParam(required = false, defaultValue = "asc") String order
+
+        ) {
+
+        List<MemberList> membersByNameOrAge = memberService.loadUsersListByNameOrAge(name);
         List<MemberList> memberSearchList = new ArrayList<>();
 
-        for (MemberList member : membersByName) {
+        for (MemberList member : membersByNameOrAge) {
             MemberList memberSearch = new MemberList(
                     member.getId(),
                     member.getName(),
@@ -237,6 +271,5 @@ public class MemberController {
         }
         return BaseResponse.success(memberSearchList);
     }
-
 
 }

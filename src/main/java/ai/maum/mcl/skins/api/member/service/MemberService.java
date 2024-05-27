@@ -20,24 +20,25 @@ public class MemberService {
         return memberMapper.findMemberById(memberId);
     }
 
-    public List<MemberSearch> loadUsersList() {
+    public List<MemberList> loadUsersList(String order) {
 
-        List<MemberSearch> allMembers = new ArrayList<>();
-        try {
-            allMembers = memberMapper.findSearchMemberById();
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return allMembers;
-    }
-    public List<MemberList> loadUsersListByNameOrAge(@RequestParam String name, @RequestParam Integer age) {
         List<MemberList> allMembers = new ArrayList<>();
         try {
-            allMembers = memberMapper.findListMemberById(name, age);
+            allMembers = memberMapper.findSearchMemberById(order);
+
         } catch (Exception e) {
             log.error(e.getMessage());
         }
         return allMembers;
     }
+    public List<MemberList> loadUsersListByNameOrAge(@RequestParam String name, @RequestParam String order) {
+        List<MemberList> allMembers = new ArrayList<>();
+        try {
+            allMembers = memberMapper.findListMemberById(name, order);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return allMembers;
+    }
+
 }
