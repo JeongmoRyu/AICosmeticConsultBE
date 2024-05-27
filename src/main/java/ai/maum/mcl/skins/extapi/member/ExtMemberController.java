@@ -43,14 +43,11 @@ public class ExtMemberController {
             @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
     ) {
 
-        log.debug("api_user:" + user.getUsername());
+        log.info("CALL EXT API MEMBER INFO RESULT-GET MEMBERINFO:" + user.getUsername());
 
         Member member = memberService.getMemberById(memberId);
 
-        log.debug("user_key:" + member.getId());
-        log.debug("name:" + member.getName());
-        log.debug("sex:" + member.getSex());
-        log.debug("age:" + member.getAge());
+        log.info("MEMBER_INFO:" + member.getId() + ":" + member.getName() + ":" + member.getSex() + ":" + member.getAge());
 
         MemberResult memberResult = new MemberResult();
 //        Long userKey = Long.valueOf(member.getUsername());
@@ -58,13 +55,20 @@ public class ExtMemberController {
 //        if(userKey == null || userKey < 1L)
 //            return BaseResponse.failure(null, "사용자 Key 오류");
 
+        log.info("GET CONSULT INFO..." + member.getId() + ":" + member.getName());
         List<ConsultInfo> consultInfoList = consultService.getConsultInfoByUserKey(memberId);
+        log.info("GET MEASURE INFO..." + member.getId() + ":" + member.getName());
         List<MeasureInfo> measureInfoList = measureService.getMeasureInfoByUserKey(memberId);
+        log.info("GET GENE INFO..." + member.getId() + ":" + member.getName());
         List<GeneInfo> geneInfoList = geneService.getGeneInfoByUserKey(memberId);
 
+        log.info("CONVER MEMBERINFO TO STRING..." + member.getId() + ":" + member.getName());
         String memberInfo = memberInfoToString(member);
+        log.info("CONVER MEASUREINFO TO STRING..." + member.getId() + ":" + member.getName());
         String measureInfo = measureInfoToString(measureInfoList);
+        log.info("CONVER GENEINFO TO STRING..." + member.getId() + ":" + member.getName());
         String geneInfo = geneInfoToString(geneInfoList);
+        log.info("CONVER CONSULTINFO TO STRING..." + member.getId() + ":" + member.getName());
         String consultInfo = consultInfoToString(consultInfoList);
 
         memberResult = new MemberResult(memberInfo, consultInfo, measureInfo, geneInfo);
@@ -116,10 +120,12 @@ public class ExtMemberController {
         for(MeasureInfo measureInfo:measureInfos) {
             if(measureInfos.size() > 1)
                 result += result.isBlank()?index + "차결과,":"\n" + index + "차결과,";
-            result += String.format("T존:%s\nU존:%s\n", measureInfo.getTZoneResult(), measureInfo.getUZoneResult())
+
+            result += String.format("피부점수:%d점, 관리항목:%s\n", measureInfo.getSkinScore(), measureInfo.getSkinGomin())
+                    + String.format("T존:%s\nU존:%s\n", measureInfo.getTZoneResult(), measureInfo.getUZoneResult())
                     + String.format("피부등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSolutionTypeNumber(), measureInfo.getSolutionTypeResult(), measureInfo.getSolutionTypeTip())
                     + String.format("민감등급:%s, 분석결과:\"%s\", 스킨케어팁:\"%s\"\n", measureInfo.getSensitiveTypeNumber(), measureInfo.getSensitiveTypeResult(), measureInfo.getSensitiveTypeTip())
-                    + String.format("피부고민 - 1.피부의 노화관련 특성 \"모공:%s,주름:%s,미래주름:%s,탄력:%s\" 2.피부의 밝음과 투명도 특성 \"색소침착:%s,멜라닌:%s\" 3.피부의 외부 자극 반응도 특성 \"붉은기:%s,포피린:%s,경피수분손실:%s\""
+                    + String.format("피부고민 - 1.피부의 노화관련 특성 \"모공:%s,주름:%s,미래주름:%s,탄력:%s\" 2.피부의 밝음과 투명도 특성 \"색소침착:%s,멜라닌:%s\" 3.피부의 외부 자극 반응도 특성 \"붉은기:%s,포피린:%s,경피수분손실:%s\"\n"
                     , measureInfo.getPoreString()
                     , measureInfo.getWrinkleString()
                     , measureInfo.getFuturewrinklesString()
@@ -129,6 +135,9 @@ public class ExtMemberController {
                     , measureInfo.getRednessString()
                     , measureInfo.getPorphyrinString()
                     , measureInfo.getTransdermalString());
+
+            if(measureInfo.getSpecialtipMemo() != null && !measureInfo.getSpecialtipMemo().isBlank())
+                result += String.format("참고사항(상담원메모):%s", measureInfo.getSpecialtipMemo());
             index++;
         }
 

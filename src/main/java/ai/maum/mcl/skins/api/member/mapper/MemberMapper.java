@@ -12,7 +12,7 @@ import java.util.List;
 public interface MemberMapper {
     public Member findMemberById(Long id);
     public List<MemberSearch> findListMemberById(String order);
-    public List<MemberList> findListMemberById(String name, String order);
+    public List<MemberList> findListMemberByName(String name, String order);
 
 }
 

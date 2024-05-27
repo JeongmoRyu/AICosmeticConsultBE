@@ -9,7 +9,7 @@
         FROM citylab_member
         where id = #{id}
     </select>
-    <select id="findSearchMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberSearch" parameterType="map">
+    <select id="findListMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
         SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count
         FROM citylab_member a
                  LEFT JOIN (
@@ -20,6 +20,20 @@
             SELECT userkey, COUNT(*) AS consult_count
             FROM tb_consult_info
             GROUP BY userkey
+        ) c ON a.id = c.userkey
+        ORDER BY a.name ${order}
+    </select>
+    <select id="findListMemberByName" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
+        SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count
+        FROM citylab_member a
+        LEFT JOIN (
+        SELECT *, ROW_NUMBER() OVER(PARTITION BY userkey ORDER BY consult_date DESC) AS rn
+        FROM tb_consult_info
+        ) b ON a.id = b.userkey AND b.rn = 1
+        LEFT JOIN (
+        SELECT userkey, COUNT(*) AS consult_count
+        FROM tb_consult_info
+        GROUP BY userkey
         ) c ON a.id = c.userkey
         <where>
             <if test="name != null">

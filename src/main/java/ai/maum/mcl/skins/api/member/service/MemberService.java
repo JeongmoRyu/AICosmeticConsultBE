@@ -31,10 +31,10 @@ public class MemberService {
         }
         return allMembers;
     }
-    public List<MemberList> loadUsersListByNameOrAge(@RequestParam String name, @RequestParam String order) {
+    public List<MemberList> loadUsersListByName(@RequestParam String name, @RequestParam String order) {
         List<MemberList> allMembers = new ArrayList<>();
         try {
-            allMembers = memberMapper.findListMemberById(name, order);
+            allMembers = memberMapper.findListMemberByName(name, order);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

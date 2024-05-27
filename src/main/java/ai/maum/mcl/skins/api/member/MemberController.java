@@ -242,18 +242,18 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "고객이름 및 나이로 조회", description = "고객 이름 및 나이로 조회")
+    @Operation(summary = "고객이름으로 조회", description = "고객 이름으로 조회 ORDER param 사용 가능")
     @GetMapping("/list/{name}")
-    public BaseResponse<List<MemberList>> getMemberListByNameOrAge(
-        @PathVariable String name,
-        @RequestParam(required = false, defaultValue = "asc") String order
-
-        ) {
-
-        List<MemberList> membersByNameOrAge = memberService.loadUsersListByNameOrAge(name);
+    public BaseResponse<List<MemberList>> getMemberListByName(
+            @PathVariable String name,
+            @RequestParam(required = false, defaultValue = "asc") String order
+//            @PathVariable(name="user_name", required = false) @Parameter(name="user_name", required = true) String name
+//            @PathVariable(name="user_age", required = false) @Parameter(name="user_age", required = false) String age
+    ) {
+        List<MemberList> membersByName = memberService.loadUsersListByName(name, order);
         List<MemberList> memberSearchList = new ArrayList<>();
 
-        for (MemberList member : membersByNameOrAge) {
+        for (MemberList member : membersByName) {
             MemberList memberSearch = new MemberList(
                     member.getId(),
                     member.getName(),
@@ -271,5 +271,4 @@ public class MemberController {
         }
         return BaseResponse.success(memberSearchList);
     }
-
 }
