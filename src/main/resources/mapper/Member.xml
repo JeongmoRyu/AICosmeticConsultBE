@@ -21,7 +21,19 @@
             FROM tb_consult_info
             GROUP BY userkey
         ) c ON a.id = c.userkey
-        ORDER BY a.name ${order}
+        <!-- ORDER BY a.name ${order} -->
+        ORDER BY 
+        <choose>
+            <when test="orderBy != null and orderBy == 'name'">
+                a.name ${order}
+            </when>
+            <when test="orderBy != null and orderBy == 'age'">
+                a.birthday ${order}
+            </when>
+            <otherwise>
+                a.name ${order}
+            </otherwise>
+        </choose>
     </select>
     <select id="findListMemberByName" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
         SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count
