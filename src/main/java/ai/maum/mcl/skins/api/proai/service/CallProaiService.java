@@ -35,17 +35,19 @@ public class CallProaiService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Api-Key", proaiApiKey);
         headers.set("Vendor-Id", proaiVendorId);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
+        ResponseEntity<List<ChatroomDetail>> responseEntity = restTemplate.exchange(
+                apiUrl,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<List<ChatroomDetail>>() {});
 
-        // GET 요청 보내기
-        ResponseEntity<String> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
-
-        String strBody = responseEntity.getBody();
-
-        return strBody;
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return new BaseResponse<>(responseEntity.getBody());
+        } else {
+            throw new RuntimeException("Failed to fetch data: " + responseEntity.getStatusCode());
+        }
     }
+
 }
