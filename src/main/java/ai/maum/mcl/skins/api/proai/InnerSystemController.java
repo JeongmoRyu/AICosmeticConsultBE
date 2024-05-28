@@ -32,6 +32,7 @@ public class InnerSystemController {
             chatroomChattingList = callProaiService.callProaiChatGet("/extapi/inner/chatroom/detail/" + userKey);
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
+            return BaseResponse.failure("Failed to fetch chatroom details");
         }
         return BaseResponse.success(chatroomChattingList);
     }

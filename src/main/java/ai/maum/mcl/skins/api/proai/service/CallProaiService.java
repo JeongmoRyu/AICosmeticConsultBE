@@ -43,8 +43,8 @@ public class CallProaiService {
                 entity,
                 new ParameterizedTypeReference<List<ChatroomDetail>>() {});
 
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            return new BaseResponse<>(responseEntity.getBody());
+         if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return BaseResponse.success(responseEntity.getBody());
         } else {
             throw new RuntimeException("Failed to fetch data: " + responseEntity.getStatusCode());
         }
