@@ -41,4 +41,11 @@ public class MemberService {
         return allMembers;
     }
 
+    public Member registChatTime(Manager manager) {
+        Timestamp chatUpdated =
+
+        memberMapper.insertChatTime(manager.getManagerId());
+        return member;
+    }
+
 }

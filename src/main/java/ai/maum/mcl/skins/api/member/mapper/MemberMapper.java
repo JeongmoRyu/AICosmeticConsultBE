@@ -14,5 +14,7 @@ public interface MemberMapper {
     public List<MemberSearch> findListMemberById(String order);
     public List<MemberList> findListMemberByName(String name, String order);
 
+    public void insertChatTime(Member member);
+
 }
 
