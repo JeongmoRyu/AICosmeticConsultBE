@@ -41,11 +41,15 @@ public class MemberService {
         return allMembers;
     }
 
-    public Member registChatTime(Manager manager) {
-        Timestamp chatUpdated =
 
-        memberMapper.insertChatTime(manager.getManagerId());
-        return member;
+    // public Member registChatTime(Long memberId) {
+    //     Timestamp chatUpdated = new Timestamp(System.currentTimeMillis());
+    //     memberMapper.updateChatTime(memberId, chatUpdated);
+    //     return memberMapper.findById(memberId); 
+    // }
+    public void registChatTime(Long memberId) {
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        memberMapper.updateChatTime(memberId, currentTime);
     }
 
 }

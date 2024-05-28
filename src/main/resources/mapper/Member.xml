@@ -54,4 +54,10 @@
         </where>
         ORDER BY a.name ${order}
     </select>
+
+    <update id="updateChatTime">
+        UPDATE members
+        SET chat_updated = #{chatUpdated}
+        WHERE member_id = #{memberId}
+    </update>
 </mapper>

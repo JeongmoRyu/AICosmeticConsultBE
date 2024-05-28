@@ -165,12 +165,11 @@ public class ExtMemberController {
 
     @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
     @PostMapping("/chatTime/{member_id}")
-    public Member chatUpdated(
+    public ResponseEntity<Void> chatUpdated(
             @AuthenticationPrincipal UserDetails user,
             @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
     ) {
         memberService.registChatTime(memberId);
-
-        return member;
+        return ResponseEntity.ok().build();
     }
 }
