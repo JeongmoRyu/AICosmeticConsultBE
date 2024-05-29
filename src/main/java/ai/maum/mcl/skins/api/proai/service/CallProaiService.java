@@ -103,4 +103,22 @@ public class CallProaiService {
         log.info("strBody : {}", strBody);
         return strBody;
     }
+
+    public String callProaiPost(String url, Object request) {
+        String apiUrl = proaiUrl + url;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Api-Key", proaiApiKey);
+        headers.set("Vendor-Id", proaiVendorId);
+        HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                apiUrl,
+                HttpMethod.POST,
+                entity,
+                String.class);
+
+        String strBody = responseEntity.getBody();
+        log.info("strBody: {}", strBody);
+        return strBody;
+    }
 }
