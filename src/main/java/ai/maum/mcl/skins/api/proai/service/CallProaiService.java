@@ -86,4 +86,21 @@ public class CallProaiService {
             throw new RuntimeException("Error translate during API call", e);
         }
     }
+
+    public String callProaiGet(String url) {
+        String apiUrl = proaiUrl + url;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Api-Key", proaiApiKey);
+        headers.set("Vendor-Id", proaiVendorId);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                apiUrl,
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+        String strBody = responseEntity.getBody();
+        log.info("strBody : {}", strBody);
+        return strBody;
+    }
 }

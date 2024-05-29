@@ -36,4 +36,27 @@ public class InnerSystemController {
         }
         return BaseResponse.success(chatroomDetailList);
     }
+
+    
+
+    @Operation(summary = "채팅내용조회", description = "특정 채팅룸의 채팅 내용 조회")
+    @ResponseBody
+    @GetMapping({"/chat/{user_id}"})
+    public BaseResponse<List<ChatroomDetail>> getChatDetail (
+            @PathVariable(name = "user_id", required = false) @Parameter(description = "사용자Key", required = true) String userKey
+    ) {
+        List<ChatroomDetail> chatroomDetailList = new ArrayList<ChatroomDetail>();
+        try {
+            String strData = callProaiService.callProaiGet("/extapi/inner/chatroom/detail/" + userKey);
+            log.info("strData :{}",strData);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode data = objectMapper.readTree(strData).path("data");
+            chatroomDetailList = objectMapper.readValue(
+                    data.traverse(),
+                    new TypeReference<List<ChatroomDetail>>() {});
+        } catch (Exception e) {
+            log.error("Error in api call", e.getMessage());
+        }
+        return BaseResponse.success(chatroomDetailList);
+    }
 }
