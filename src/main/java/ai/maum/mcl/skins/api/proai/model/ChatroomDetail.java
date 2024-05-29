@@ -1,6 +1,9 @@
 package ai.maum.mcl.skins.api.proai.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -17,7 +20,7 @@ public class ChatroomDetail {
     private Long id;
 
     @Schema(description = "챗봇룸ID", example = "1")
-    private Long roomId;
+    private Long room_id;
 
     @Schema(description = "순서", example = "CARD")
     private Long seq;
@@ -32,14 +35,14 @@ public class ChatroomDetail {
     private String feedback;
 
     @Schema(description = "등록일", example = "2024-01-24 14:10:01")
-    private Timestamp createdAt;
+    private Timestamp created_at;
 
     @UpdateTimestamp
     @Schema(description = "수정일", example = "2024-01-24 14:10:02")
-    private Timestamp updatedAt;
+    private Timestamp updated_at;
 
     public ChatroomDetail(Long roomId, Long seq, String role, String content) {
-        this.roomId = roomId;
+        this.room_id = room_id;
         this.seq = seq;
         this.role = role;
         this.content = content;
@@ -49,7 +52,7 @@ public class ChatroomDetail {
     }
 
     public ChatroomDetail(HashMap<String,String> infoMap) {
-        this.roomId = Long.valueOf(infoMap.get("roomId")==null?"":infoMap.get("roomId"));
+        this.room_id = Long.valueOf(infoMap.get("room_id")==null?"":infoMap.get("room_id"));
         this.seq = Long.valueOf(infoMap.get("seq")==null?"":infoMap.get("seq"));
         this.role = infoMap.get("role")==null?"":infoMap.get("role");
         this.content = infoMap.get("content")==null?"":infoMap.get("content");

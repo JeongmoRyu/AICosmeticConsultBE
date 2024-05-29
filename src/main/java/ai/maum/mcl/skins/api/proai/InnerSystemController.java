@@ -27,14 +27,13 @@ public class InnerSystemController {
     public BaseResponse<List<ChatroomDetail>> getChatroomDetail (
             @PathVariable(name = "user_id", required = false) @Parameter(description = "사용자Key", required = true) String userKey
     ) {
-        List<ChatroomDetail> chatroomChattingList = new ArrayList<ChatroomDetail>();
+        List<ChatroomDetail> chatroomDetailList = new ArrayList<ChatroomDetail>();
         try {
-            chatroomChattingList = callProaiService.callProaiChatGet("/extapi/inner/chatroom/detail/" + userKey);
+//            BaseResponse<List<ChatroomDetail>> response = callProaiService.callProaiChatGet("/extapi/inner/chatroom/detail/" + userKey);
+            chatroomDetailList = callProaiService.callProaiChatGet("/extapi/inner/chatroom/detail/" + userKey);
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
-            return BaseResponse.failure("Failed to fetch chatroom details");
+            log.error("Error in api call", e.getMessage());
         }
-        return BaseResponse.success(chatroomChattingList);
+        return BaseResponse.success(chatroomDetailList);
     }
-
 }
