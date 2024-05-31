@@ -163,13 +163,17 @@ public class ExtMemberController {
         return result;
     }
 
-    @Operation(summary = "고객정보조회(전체)", description = "고객정보조회(상담결과/유전자검사결과/측정결과통합)")
-    @PostMapping("/chatTime/{member_id}")
-    public ResponseEntity<Void> chatUpdated(
+    @Operation(summary = "chatupdated시간", description = "chatupdated시간")
+    @PostMapping("/chattime/{member_id}")
+    public ResponseEntity<String> chatUpdated(
             @AuthenticationPrincipal UserDetails user,
-            @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
+            @PathVariable(name = "member_id") @Parameter(name = "member_id", required = true) Long memberId
     ) {
-        memberService.registChatTime(memberId);
-        return ResponseEntity.ok().build();
+        try {
+            memberService.registChatTime(memberId);
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("failure");
+        }
     }
 }

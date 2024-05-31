@@ -105,14 +105,15 @@ public class CallProaiService {
     }
 
 
+    public String callProaiPost(String url, String request) {
 
-    public String callProaiPost(String url, Object request) {
-        String apiUrl = proaiUrl + url;
+        String apiUrl = proAiUrl + url + "/?message=" + request;
+        log.info("apiUrl: {}", apiUrl);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Api-Key", proaiApiKey);
-        headers.set("Vendor-Id", proaiVendorId);
-        HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+        headers.set("Api-Key", proAiApiKey);
+        headers.set("Vendor-Id", proAiVendorId);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
                 apiUrl,
                 HttpMethod.POST,
@@ -125,12 +126,12 @@ public class CallProaiService {
     }
 
 
-    @Operation(summary = "test", description = "test")
-    @GetMapping({"/proai/test"})
-    public String getChatDetail (
-            @RequestParam(value="url") String url
-    ) {
-        return callProaiService.callProaiGet(url);
-    }
+    // @Operation(summary = "test", description = "test")
+    // @GetMapping({"/proai/test"})
+    // public String getChatDetail (
+    //         @RequestParam(value="url") String url
+    // ) {
+    //     return callProaiService.callProaiGet(url);
+    // }
 
 }
