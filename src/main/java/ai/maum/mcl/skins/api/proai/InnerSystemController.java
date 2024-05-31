@@ -38,6 +38,15 @@ public class InnerSystemController {
     }
 
     
+    @Operation(summary = "test", description = "test")
+    @ResponseBody
+    @GetMapping({"/proai/test/{url}"})
+    public String getChatDetail (
+            @PathVariable(name = "url", required = false) @Parameter(description = "url", required = true) String url
+    ) {
+       String strbody = CallProaiService.callProaiGet(url);
+       return strbody
+    }
 
     @Operation(summary = "채팅내용조회", description = "특정 채팅룸의 채팅 내용 조회")
     @ResponseBody
@@ -61,26 +70,35 @@ public class InnerSystemController {
     }
 
     
-    @Operation(summary = "채팅내용조회 (POST)", description = "특정 채팅룸의 채팅 내용 조회 (POST)")
-    @ResponseBody
-    @PostMapping("/chat/{user_id}")
-    public BaseResponse<List<ChatroomDetail>> getChatPost(
-            @PathVariable(name = "user_id", required = true) @Parameter(description = "사용자Key") String userKey,
-            @RequestBody @Parameter(name="챗보내기", required=true) ChatEntity chat
-        ) {
 
-        List<ChatroomDetail> chatDetail = new ArrayList<>();
-        try {
-            String strData = callProaiService.callProaiPost("/extapi/inner/chatroom/detail/" + userKey, chat);
-            log.info("strData: {}", strData);
-            // ObjectMapper objectMapper = new ObjectMapper();
-            // JsonNode data = objectMapper.readTree(strData).path("data");
-            // chatDetail = objectMapper.readValue(
-            //         data.traverse(),
-            //         new TypeReference<List<ChatroomDetail>>() {});
-        } catch (Exception e) {
-            log.error("Error in API call: {}", e.getMessage(), e);
+@Operation(summary = "채팅내용조회 (POST)", description = "특정 채팅룸의 채팅 내용 조회 (POST)")
+@ResponseBody
+@PostMapping("/chat/{user_id}")
+public BaseResponse<String> getChatPost(
+        @PathVariable(name = "user_id", required = true) @Parameter(description = "사용자Key") String userKey,
+        @RequestBody @Parameter(name="message", required=true) String chat
+    ) {
+
+    String data = "";
+    try {
+        String strData = callProaiService.callProaiPost("/extapi/inner/chatroom/detail/" + userKey, chat);
+        log.info("strData: {}", strData);
+        data = strData; 
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(strData);
+
+        boolean result = jsonNode.path("result").asBoolean();
+
+        if (result) {
+            return BaseResponse.success(data);
+        } else {
+            return BaseResponse.failure("Failure message based on your logic");
         }
-        return BaseResponse.success(chatDetail);
-    }                                                                                                                                                        
+    } catch (Exception e) {
+        log.error("Error in API call: {}", e.getMessage(), e);
+        return BaseResponse.failure("An error occurred: " + e.getMessage());
+    }
+}
+                                                                                                                                                         
 }

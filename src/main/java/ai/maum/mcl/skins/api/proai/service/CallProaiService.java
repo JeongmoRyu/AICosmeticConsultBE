@@ -104,6 +104,8 @@ public class CallProaiService {
         return strBody;
     }
 
+
+
     public String callProaiPost(String url, Object request) {
         String apiUrl = proaiUrl + url;
         HttpHeaders headers = new HttpHeaders();
@@ -121,4 +123,14 @@ public class CallProaiService {
         log.info("strBody: {}", strBody);
         return strBody;
     }
+
+
+    @Operation(summary = "test", description = "test")
+    @GetMapping({"/proai/test"})
+    public String getChatDetail (
+            @RequestParam(value="url") String url
+    ) {
+        return callProaiService.callProaiGet(url);
+    }
+
 }
