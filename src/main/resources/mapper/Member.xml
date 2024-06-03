@@ -86,7 +86,48 @@
             </otherwise>
         </choose>
     </select>
-
+<select id="findListMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
+        SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count, a.chat_updated
+        FROM citylab_member a
+        LEFT JOIN (
+        SELECT *, ROW_NUMBER() OVER(PARTITION BY userkey ORDER BY consult_date DESC) AS rn
+        FROM tb_consult_info
+        ) b ON a.id = b.userkey AND b.rn = 1
+        LEFT JOIN (
+        SELECT userkey, COUNT(*) AS consult_count
+        FROM tb_consult_info
+        GROUP BY userkey
+        ) c ON a.id = c.userkey
+        <where>
+            <if test="name != null and name != ''">
+                AND a.name = #{name}
+            </if>
+            <if test="age != null">
+                AND (EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM TO_DATE(a.birthday, 'YYYYMMDD'))) = #{age}
+            </if>
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy == 'name'">
+                ORDER BY a.name
+            </when>
+            <when test="orderBy != null and orderBy == 'chatting'">
+                ORDER BY a.chat_updated
+            </when>
+            <otherwise>
+                ORDER BY a.name
+            </otherwise>
+        </choose>
+        <if test="order != null">
+            <choose>
+                <when test="order =='asc'">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+    </select>
 
     <update id="updateChatTime">
         UPDATE members

@@ -55,6 +55,36 @@ public class MemberService {
         return allMembers;
     }
 
+    public List<MemberList> loadUsersList(String orderBy, String order, String name, Integer age) {
+        Map<String, Object> params = new HashMap<>();
+        if (orderBy != null) {
+            params.put("orderBy", orderBy);
+        }
+        if (order != null) {
+            params.put("order", order);
+        }
+        if (name != null) {
+            params.put("name", name);
+        }
+        if (age != null) {
+            params.put("age", age);
+        }
+//        params.put("orderBy", orderBy);
+
+//        params.put("order", order);
+//        params.put("name", name);
+//        params.put("age", age);
+
+        List<MemberList> allMembers = new ArrayList<>();
+        try {
+            log.info("param:{}", params);
+            log.info("allmember: {}", memberMapper.findListMemberById(params));
+            allMembers = memberMapper.findListMemberById(params);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return allMembers;
+    }
 
     // public Member registChatTime(Long memberId) {
     //     Timestamp chatUpdated = new Timestamp(System.currentTimeMillis());

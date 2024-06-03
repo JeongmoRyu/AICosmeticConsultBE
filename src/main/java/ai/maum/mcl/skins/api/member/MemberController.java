@@ -270,6 +270,37 @@ public class MemberController {
         return BaseResponse.success(memberListList);
     }
 
+
+    @Operation(summary = "고객리스트(전체,이름, 나이, 채팅, 순서)", description = "고객리스트(전체,이름, 나이, 채팅, 순서) param")
+    @GetMapping("/list")
+    public BaseResponse<List<MemberList>> getMemberSearch(
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer age
+    ) {
+        List<MemberList> allMembers = memberService.loadUsersList(orderBy, order, name, age);
+        List<MemberList> memberListList = new ArrayList<>();
+
+        for (MemberList member : allMembers) {
+            MemberList memberList = new MemberList(
+                    member.getId(),
+                    member.getName(),
+                    member.getSex(),
+                    member.getAge(),
+                    member.getConcern1(),
+                    member.getConcern2(),
+                    member.getConsultCount(),
+                    member.getBirthday(),
+                    member.getPhone(),
+                    member.getBirthCd(),
+                    member.getExtractedYear()
+            );
+            memberListList.add(memberList);
+        }
+        return BaseResponse.success(memberListList);
+    }
+
     @Operation(summary = "고객이름으로 조회", description = "고객 이름으로 조회 ORDER param 사용 가능")
     @GetMapping("/list/{name}")
     public BaseResponse<List<MemberList>> getMemberListByName(
