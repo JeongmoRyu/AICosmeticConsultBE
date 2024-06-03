@@ -40,6 +40,20 @@ public class MemberService {
         }
         return allMembers;
     }
+    public List<MemberList> loadUsersList(String order, String name, Integer age) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("order", order);
+        params.put("name", name);
+        params.put("age", age);
+
+        List<MemberList> allMembers = new ArrayList<>();
+        try {
+            allMembers = memberMapper.findListMemberById(params);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return allMembers;
+    }
 
 
     // public Member registChatTime(Long memberId) {

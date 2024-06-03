@@ -10,7 +10,7 @@
         where id = #{id}
     </select>
     <select id="findListMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
-        SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count
+        SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count, a.chat_updated
         FROM citylab_member a
                  LEFT JOIN (
             SELECT *, ROW_NUMBER() OVER(PARTITION BY userkey ORDER BY consult_date DESC) AS rn
@@ -27,8 +27,8 @@
             <when test="orderBy != null and orderBy == 'name'">
                 a.name ${order}
             </when>
-            <when test="orderBy != null and orderBy == 'age'">
-                a.birthday ${order}
+            <when test="orderBy != null and orderBy == 'chatting'">
+                a.chat_updated ${order}
             </when>
             <otherwise>
                 a.name ${order}
@@ -54,6 +54,39 @@
         </where>
         ORDER BY a.name ${order}
     </select>
+    <select id="findListMemberById" resultType="ai.maum.mcl.skins.api.member.model.MemberList" parameterType="map">
+        SELECT a.id, a.name, a.birthday, a.birth_cd, a.sex, a.phone, b.concern1, b.concern2, c.consult_count, a.chat_updated
+        FROM citylab_member a
+                LEFT JOIN (
+            SELECT *, ROW_NUMBER() OVER(PARTITION BY userkey ORDER BY consult_date DESC) AS rn
+            FROM tb_consult_info
+        ) b ON a.id = b.userkey AND b.rn = 1
+                LEFT JOIN (
+            SELECT userkey, COUNT(*) AS consult_count
+            FROM tb_consult_info
+            GROUP BY userkey
+        ) c ON a.id = c.userkey
+        <where>
+            <if test="name != null and name != ''">
+                AND a.name = #{name}
+            </if>
+            <if test="age != null">
+                AND YEAR(CURDATE()) - YEAR(STR_TO_DATE(a.birthday, '%Y-%m-%d')) = #{age}
+            </if>
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy == 'name'">
+                ORDER BY a.name ${order}
+            </when>
+            <when test="orderBy != null and orderBy == 'chatting'">
+                ORDER BY a.chat_updated ${order}
+            </when>
+            <otherwise>
+                ORDER BY a.name ${order}
+            </otherwise>
+        </choose>
+    </select>
+
 
     <update id="updateChatTime">
         UPDATE members

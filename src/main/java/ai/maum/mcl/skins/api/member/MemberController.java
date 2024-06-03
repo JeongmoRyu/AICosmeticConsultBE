@@ -241,6 +241,34 @@ public class MemberController {
         return BaseResponse.success(memberListList);
     }
 
+    @Operation(summary = "리스트", description = "리스트")
+    @GetMapping("/list")
+    public BaseResponse<List<MemberList>> getMemberList(
+        @RequestParam(required = false, defaultValue = "asc") String order,
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) Integer age
+    ) {
+        List<MemberList> allMembers = memberService.loadUsersList(order, name, age);
+        List<MemberList> memberListList = new ArrayList<>();
+
+        for (MemberList member : allMembers) {
+            MemberList memberSearch = new MemberList(
+                    member.getId(),
+                    member.getName(),
+                    member.getSex(),
+                    member.getAge(),
+                    member.getConcern1(),
+                    member.getConcern2(),
+                    member.getConsultCount(),
+                    member.getBirthday(),
+                    member.getPhone(),
+                    member.getBirthCd(),
+                    member.getExtractedYear()
+            );
+            memberSearchList.add(memberList);
+        }
+        return BaseResponse.success(memberListList);
+    }
 
     @Operation(summary = "고객이름으로 조회", description = "고객 이름으로 조회 ORDER param 사용 가능")
     @GetMapping("/list/{name}")
