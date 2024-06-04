@@ -45,15 +45,12 @@ public class ConsultController {
             @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
     ) {
         log.info("memberId: {}", memberId);
-        return BaseResponse.success(getConsultDirectInfo(memberId));
-//        log.info("data: {}", getConsultDirect(userKey));
-//        List<ConsultDirect> data = getConsultDirect(userKey);
-//        try {
-//            return BaseResponse.success(data);
-//        } catch (Exception e) {
-//            log.info("ERROR OCCURED GET LIST", e.getMessage());
-//        }
-//        return BaseResponse.success(data);
+        try {
+            return BaseResponse.success(getConsultDirectByMemberId(memberId));
+        } catch (Exception e) {
+            log.error("Error occurred while getting ConsultDirect list: {}", e.getMessage(), e);
+            return BaseResponse.error("Error occurred while getting ConsultDirect list");
+        }
     }
 //    public List<ConsultInfo> getConsultInfo(Long userKey, Integer consultNumber) {
 //        return consultService.getConsultInfoByUserKey(userKey, consultNumber);
