@@ -17,6 +17,20 @@
         FROM tb_consult_info
         where userkey = #{userKey}
     </select>
+    <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="Long">
+        SELECT id
+             , consult_date
+             , userkey
+             , consult_data
+             , concern1
+             , concern2
+             , product
+             , significant
+             , etc
+             , features
+        FROM _20240604_tb_consult_info
+        where userkey = #{memberId}
+    </select>
     <select id="getConsultIndirectInfo" resultType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect" parameterType="Long">
         SELECT a.name
              , a.consult_date
@@ -49,5 +63,11 @@
         FROM y_consult_raw_iopelab b
         LEFT JOIN citylab_member c ON b.name = c.name
         WHERE b.name = (SELECT name FROM citylab_member WHERE id = #{id});
+    </select>
+    <select id="getConsultSignificantGroup" resultType="ai.maum.mcl.skins.api.consult.model.SignificantGroup">
+        SELECT code
+             , description
+             , value
+        FROM tb_significant_group
     </select>
 </mapper>

@@ -22,6 +22,15 @@ public class ConsultService {
     public List<ConsultInfo> getConsultInfoByUserKey(Long userKey) {
         return consultMapper.getConsultInfoByUserKey(userKey);
     }
+    public List<SignificantGroup> getSignificantGroup() {
+        return consultMapper.getConsultSignificantGroup();
+    }
+
+    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
+        log.info("memberId: {}", memberId);
+
+        return consultMapper.getConsultDirectByMemberId(memberId);
+    }
 //    public List<ConsultInfo> getConsultInfoByUserKey(Long userKey, Integer consultNumber) {
 //        List<ConsultInfo> consultList = new ArrayList<>();
 //        List<ConsultInfo> tempList = consultMapper.getConsultInfoByUserKey(userKey);

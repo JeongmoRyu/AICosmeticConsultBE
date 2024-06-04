@@ -37,6 +37,24 @@ public class ConsultController {
     public List<ConsultInfo> getConsultInfo(Long userKey) {
         return consultService.getConsultInfoByUserKey(userKey);
     }
+
+    
+    @Operation(summary = "대면상담정보조회", description = "개별 대면 상담정보조회")
+    @GetMapping("/direct/{member_id}")
+    public BaseResponse<List<ConsultDirect>> responseConsultDirect(
+            @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
+    ) {
+        log.info("memberId: {}", memberId);
+        return BaseResponse.success(getConsultDirectInfo(memberId));
+//        log.info("data: {}", getConsultDirect(userKey));
+//        List<ConsultDirect> data = getConsultDirect(userKey);
+//        try {
+//            return BaseResponse.success(data);
+//        } catch (Exception e) {
+//            log.info("ERROR OCCURED GET LIST", e.getMessage());
+//        }
+//        return BaseResponse.success(data);
+    }
 //    public List<ConsultInfo> getConsultInfo(Long userKey, Integer consultNumber) {
 //        return consultService.getConsultInfoByUserKey(userKey, consultNumber);
 //    }
@@ -52,5 +70,19 @@ public class ConsultController {
     public List<ConsultIndirect> getConsultIndirectInfo(Long id) {
         return consultService.getConsultIndirectInfo(id);
     }
+
+
+    @Operation(summary = "상담정보조회", description = "전체 상담정보조회")
+    @GetMapping("/group")
+    public BaseResponse<List<SignificantGroup>> responseSignificantGroup(
+    ) {
+
+        return BaseResponse.success(getSignificantGroup());
+    }
+
+    public List<SignificantGroup> getSignificantGroup() {
+        return consultService.getSignificantGroup();
+    }
+
 
 }
