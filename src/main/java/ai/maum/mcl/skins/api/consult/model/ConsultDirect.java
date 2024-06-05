@@ -1,7 +1,9 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ConsultDirect {
     private String id;
@@ -116,7 +118,7 @@ public class ConsultDirect {
 
     public void setFeatures(String features) {
         this.features = features;
-        this.featureList = parseFeatures(features); 
+        this.featureList = parseFeatures(features); // String 값이 변경될 때 List로 변환
     }
 
     public List<Feature> getFeatureList() {
@@ -127,21 +129,16 @@ public class ConsultDirect {
         this.featureList = featureList;
     }
 
+    // features 필드를 List<Feature>로 변환하는 메서드
     private List<Feature> parseFeatures(String features) {
         List<Feature> featureList = new ArrayList<>();
         if (features != null && !features.isEmpty()) {
-            String[] featureArray = features.split(",");
-            for (String feature : featureArray) {
-                String[] parts = feature.split(":");
-                if (parts.length == 2) {
-                    try {
-                        int value = Integer.parseInt(parts[0].trim());
-                        String description = parts[1].trim();
-                        featureList.add(new Feature(value, description));
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                    }
-                }
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                // JSON 배열 문자열을 List<Feature>로 변환
+                featureList = mapper.readValue(features, mapper.getTypeFactory().constructCollectionType(List.class, Feature.class));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
         }
         return featureList;
@@ -151,6 +148,11 @@ public class ConsultDirect {
         private int value;
         private String description;
 
+        // 기본 생성자
+        public Feature() {
+        }
+
+        // 파라미터가 있는 생성자
         public Feature(int value, String description) {
             this.value = value;
             this.description = description;
