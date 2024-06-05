@@ -29,17 +29,24 @@ public class ConsultService {
 
     public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
         Map<String, Long> parameters = new HashMap<>();
-        parameters.put("memberId", memberId);
+        if (memberId != null) {
+            parameters.put("memberId", memberId);
+        }
+        log.info("parameters: {}",parameters);
+
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
     public List<ConsultDirect> getConsultDirectByConsultNumber(Long memberId,Long consultNumber) {
         Map<String, Long> parameters = new HashMap<>();
-        parameters.put("memberId", memberId);
-        parameters.put("consultNumber", consultNumber);
+        if (memberId != null) {
+            parameters.put("memberId", memberId);
+        }
+        if (consultNumber != null) {
+            parameters.put("consultNumber", memberId);
+        }
+        log.info("parameters: {}",parameters);
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
-
-
     public void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber) {
         try {
             consultDirectMapper.updateConsultDirect(consultDirect, memberId, consultNumber);

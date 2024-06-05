@@ -12,7 +12,7 @@ import java.util.List;
 public interface ConsultMapper {
   //    public MemberDetail findMemberById(Long id);
   public List<ConsultInfo> getConsultInfoByUserKey(Long userKey);
-  public List<ConsultDirect> getConsultDirectByMemberId(Map<String, Object> params);
+  public List<ConsultDirect> getConsultDirectByMemberId(Map<String, Long> params);
 
   public List<ConsultIndirect> getConsultIndirectInfo(Long id);
   public List<SignificantGroup> getConsultSignificantGroup();

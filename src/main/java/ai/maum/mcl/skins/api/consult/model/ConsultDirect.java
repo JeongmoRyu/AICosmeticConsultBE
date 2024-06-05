@@ -24,15 +24,15 @@ public class ConsultDirect {
     private String product;
     private String significant;
     private String etc;
+    private Long consultNumber;
 
     @JsonIgnore
     private String features;
     private List<Feature> featureList;
-
     public ConsultDirect() {
     }
 
-    public ConsultDirect(String id, Timestamp consultDate, Long userKey, String consultData, String concern1, String concern2, String product, String significant, String etc, String features) {
+    public ConsultDirect(String id, Timestamp consultDate, Long userKey, String consultData, String concern1, String concern2, String product, String significant, String etc, String features, Long consultNumber) {
         this.id = id;
         this.consultDate = consultDate;
         this.userKey = userKey;
@@ -44,6 +44,7 @@ public class ConsultDirect {
         this.etc = etc;
         this.features = features;
         this.featureList = parseFeatures(features);
+        this.consultNumber = consultNumber;
     }
 
     public String getId() {
@@ -116,6 +117,14 @@ public class ConsultDirect {
 
     public void setEtc(String etc) {
         this.etc = etc;
+    }
+
+    public Long getconsultNumber() {
+        return consultNumber;
+    }
+
+    public void setconsultNumber(Long consultNumber) {
+        this.consultNumber = consultNumber;
     }
 
     public String getFeatures() {

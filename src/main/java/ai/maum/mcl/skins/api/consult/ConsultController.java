@@ -37,7 +37,7 @@ public class ConsultController {
     public List<ConsultInfo> getConsultInfo(Long userKey) {
         return consultService.getConsultInfoByUserKey(userKey);
     }
-
+    
     @Operation(summary = "대면상담정보조회", description = "개별 대면 상담정보조회")
     @GetMapping("/direct/{memberId}/{consultNumber}")
     public BaseResponse<List<ConsultDirect>> responseConsultDirect(
