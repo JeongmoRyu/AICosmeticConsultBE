@@ -58,6 +58,7 @@ public class ConsultService {
             throw e;
         }
     }
+
 //    public List<ConsultInfo> getConsultInfoByUserKey(Long userKey, Integer consultNumber) {
 //        List<ConsultInfo> consultList = new ArrayList<>();
 //        List<ConsultInfo> tempList = consultMapper.getConsultInfoByUserKey(userKey);

@@ -84,5 +84,5 @@
             features = #{features}
         WHERE userkey = #{memberId}
         AND id = #{consultNumber}
-</update>
+    </update>
 </mapper>

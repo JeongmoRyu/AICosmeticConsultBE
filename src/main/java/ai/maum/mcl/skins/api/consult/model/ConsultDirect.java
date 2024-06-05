@@ -142,7 +142,10 @@ public class ConsultDirect {
 
     public void setFeatureList(List<Feature> featureList) {
         this.featureList = featureList;
+        this.features = serializeFeatures(featureList);
+
     }
+
 
     private List<Feature> parseFeatures(String features) {
         List<Feature> featureList = new ArrayList<>();
@@ -177,6 +180,25 @@ public class ConsultDirect {
             }
         }
         return featureList;
+    }
+
+
+    public String serializeFeatures(List<Feature> featureList) {
+        if (featureList == null || featureList.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < featureList.size(); i++) {
+            Feature feature = featureList.get(i);
+            sb.append("{\"value\":").append(feature.getValue())
+              .append(",\"description\":\"").append(feature.getDescription()).append("\"}");
+            if (i < featureList.size() - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     public static class Feature {

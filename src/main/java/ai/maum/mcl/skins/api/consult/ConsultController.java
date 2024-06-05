@@ -100,6 +100,6 @@ public class ConsultController {
             logger.error("Error updating consultation", e);
             return BaseResponse.error("Failed to update consultation: " + e.getMessage());
         }
-}
+    }   
 
 }
