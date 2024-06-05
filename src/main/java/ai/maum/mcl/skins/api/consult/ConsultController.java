@@ -38,23 +38,22 @@ public class ConsultController {
         return consultService.getConsultInfoByUserKey(userKey);
     }
 
-    
-@Operation(summary = "대면상담정보조회", description = "개별 대면 상담정보조회")
-@GetMapping("/direct/{memberId}/{consultNumber}")
-public BaseResponse<List<ConsultDirect>> responseConsultDirect(
-        @PathVariable(name = "member_id", required = true) @Parameter(name = "member_id", required = true) Long memberId,
-        @PathVariable(name = "consult_number", required = false) @Parameter(name = "consult_number", required = false) Long consultNumber
-) {
-    log.info("memberId: {}", memberId);
-    
-    if (consultNumber != null) {
-        List<ConsultDirect> directConsult = consultDirectService.getConsultDirectByMemberIdAndConsultNumber(memberId, consultNumber);
-        return BaseResponse.success(directConsult);
-    } else {
-        List<ConsultDirect> allDirectConsults = consultDirectService.getConsultDirectByMemberId(memberId);
-        return BaseResponse.success(allDirectConsults);
+    @Operation(summary = "대면상담정보조회", description = "개별 대면 상담정보조회")
+    @GetMapping("/direct/{memberId}/{consultNumber}")
+    public BaseResponse<List<ConsultDirect>> responseConsultDirect(
+            @PathVariable(name = "member_id", required = true) @Parameter(name = "member_id", required = true) Long memberId,
+            @PathVariable(name = "consult_number", required = false) @Parameter(name = "consult_number", required = false) Long consultNumber
+    ) {
+        log.info("memberId: {}", memberId);
+
+        if (consultNumber != null) {
+            List<ConsultDirect> directConsult = consultService.getConsultDirectByConsultNumber(memberId, consultNumber);
+            return BaseResponse.success(directConsult);
+        } else {
+            List<ConsultDirect> allDirectConsults = consultService.getConsultDirectByMemberId(memberId);
+            return BaseResponse.success(allDirectConsults);
+        }
     }
-}
 
 //    public List<ConsultInfo> getConsultInfo(Long userKey, Integer consultNumber) {
 //        return consultService.getConsultInfoByUserKey(userKey, consultNumber);

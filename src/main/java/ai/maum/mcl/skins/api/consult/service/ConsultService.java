@@ -26,16 +26,17 @@ public class ConsultService {
         return consultMapper.getConsultSignificantGroup();
     }
 
-    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
-        log.info("memberId: {}", memberId);
 
-        return consultMapper.getConsultDirectByMemberId(memberId);
+    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
+        Map<String, Long> parameters = new HashMap<>();
+        parameters.put("memberId", memberId);
+        return consultMapper.getConsultDirectByMemberId(parameters);
     }
-    public List<ConsultDirect> getConsultIndirectInfo(Long memberId, Long consultNumber) {
+    public List<ConsultDirect> getConsultDirectByConsultNumber(Long memberId,Long consultNumber) {
         Map<String, Long> parameters = new HashMap<>();
         parameters.put("memberId", memberId);
         parameters.put("consultNumber", consultNumber);
-        return consultDirectMapper.getConsultDirectByMemberId(parameters);
+        return consultMapper.getConsultDirectByMemberId(parameters);
     }
 
 
