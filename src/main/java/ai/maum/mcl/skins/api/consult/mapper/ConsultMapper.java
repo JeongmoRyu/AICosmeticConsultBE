@@ -10,11 +10,12 @@ import java.util.List;
 @Mapper
 @Repository
 public interface ConsultMapper {
-//    public MemberDetail findMemberById(Long id);
-public List<ConsultInfo> getConsultInfoByUserKey(Long userKey);
-public List<ConsultDirect> getConsultDirectByMemberId(Long memberId);
+  //    public MemberDetail findMemberById(Long id);
+  public List<ConsultInfo> getConsultInfoByUserKey(Long userKey);
+  public List<ConsultDirect> getConsultDirectByMemberId(Long memberId);
 
-public List<ConsultIndirect> getConsultIndirectInfo(Long id);
-public List<SignificantGroup> getConsultSignificantGroup();
+  public List<ConsultIndirect> getConsultIndirectInfo(Long id);
+  public List<SignificantGroup> getConsultSignificantGroup();
+  void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber);
 
 }

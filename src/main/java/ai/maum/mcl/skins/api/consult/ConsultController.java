@@ -45,12 +45,8 @@ public class ConsultController {
             @PathVariable(name = "member_id", required = false) @Parameter(name = "member_id", required = true) Long memberId
     ) {
         log.info("memberId: {}", memberId);
-        try {
-            return BaseResponse.success(getConsultDirectByMemberId(memberId));
-        } catch (Exception e) {
-            log.error("Error occurred while getting ConsultDirect list: {}", e.getMessage(), e);
-            return BaseResponse.error("Error occurred while getting ConsultDirect list");
-        }
+        return BaseResponse.success(getConsultDirectByMemberId(memberId));
+        
     }
 //    public List<ConsultInfo> getConsultInfo(Long userKey, Integer consultNumber) {
 //        return consultService.getConsultInfoByUserKey(userKey, consultNumber);
@@ -81,5 +77,22 @@ public class ConsultController {
         return consultService.getSignificantGroup();
     }
 
+    @PutMapping("/direct/{memberId}/{consultNumber}")
+    public BaseResponse<String> updateConsultDirect(
+            @PathVariable Long memberId,
+            @PathVariable Long consultNumber,
+            @RequestBody ConsultDirect consultDirect
+        ) {
+        try {
+            consultDirectService.updateConsultDirect(consultDirect, memberId, consultNumber);
+            return BaseResponse.success("Consultation updated successfully.");
+        } catch (DataAccessException e) {
+            logger.error("Database access error occurred", e);
+            return BaseResponse.error("Failed to update consultation due to database error.");
+        } catch (Exception e) {
+            logger.error("Error updating consultation", e);
+            return BaseResponse.error("Failed to update consultation: " + e.getMessage());
+        }
+}
 
 }

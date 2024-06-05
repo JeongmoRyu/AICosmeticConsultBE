@@ -70,4 +70,17 @@
              , value
         FROM tb_significant_group
     </select>
+    <update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">
+        UPDATE _20240604_tb_consult_info
+        SET consult_date = #{consultDate},
+            consult_data = #{consultData},
+            concern1 = #{concern1},
+            concern2 = #{concern2},
+            product = #{product},
+            significant = #{significant},
+            etc = #{etc},
+            features = #{features}
+        WHERE userkey = #{memberId}
+        AND id = #{consultNumber}
+</update>
 </mapper>

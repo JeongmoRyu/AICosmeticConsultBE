@@ -31,6 +31,19 @@ public class ConsultService {
 
         return consultMapper.getConsultDirectByMemberId(memberId);
     }
+
+
+    public void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber) {
+        try {
+            consultDirectMapper.updateConsultDirect(consultDirect, memberId, consultNumber);
+        } catch (DataAccessException e) {
+            logger.error("Database access error occurred while updating", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error updating consultation", e);
+            throw e;
+        }
+    }
 //    public List<ConsultInfo> getConsultInfoByUserKey(Long userKey, Integer consultNumber) {
 //        List<ConsultInfo> consultList = new ArrayList<>();
 //        List<ConsultInfo> tempList = consultMapper.getConsultInfoByUserKey(userKey);
