@@ -17,7 +17,7 @@
         FROM tb_consult_info
         where userkey = #{userKey}
     </select>
-    <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="Long">
+    <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">
         SELECT id
              , consult_date
              , userkey
@@ -28,8 +28,10 @@
              , significant
              , etc
              , features
+             , consult_number
         FROM _20240604_tb_consult_info
         where userkey = #{memberId}
+        AND consult_number = #{consultNumber}
     </select>
     <select id="getConsultIndirectInfo" resultType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect" parameterType="Long">
         SELECT a.name

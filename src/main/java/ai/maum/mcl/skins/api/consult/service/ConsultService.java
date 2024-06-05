@@ -31,6 +31,12 @@ public class ConsultService {
 
         return consultMapper.getConsultDirectByMemberId(memberId);
     }
+    public List<ConsultDirect> getConsultIndirectInfo(Long memberId, Long consultNumber) {
+        Map<String, Long> parameters = new HashMap<>();
+        parameters.put("memberId", memberId);
+        parameters.put("consultNumber", consultNumber);
+        return consultDirectMapper.getConsultDirectByMemberId(parameters);
+    }
 
 
     public void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber) {
