@@ -1,8 +1,20 @@
+package ai.maum.mcl.skins.api.consult.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConsultDirect {
+    private static final Logger logger = LoggerFactory.getLogger(ConsultDirect.class);
     private String id;
     private Timestamp consultDate;
     private Long userKey;
@@ -12,14 +24,14 @@ public class ConsultDirect {
     private String product;
     private String significant;
     private String etc;
+
+    @JsonIgnore
     private String features;
     private List<Feature> featureList;
 
-    // 기본 생성자
     public ConsultDirect() {
     }
 
-    // 파라미터가 있는 생성자
     public ConsultDirect(String id, Timestamp consultDate, Long userKey, String consultData, String concern1, String concern2, String product, String significant, String etc, String features) {
         this.id = id;
         this.consultDate = consultDate;
@@ -34,7 +46,6 @@ public class ConsultDirect {
         this.featureList = parseFeatures(features);
     }
 
-    // Getter 및 Setter 메서드
     public String getId() {
         return id;
     }
@@ -124,13 +135,12 @@ public class ConsultDirect {
         this.featureList = featureList;
     }
 
-    // features 필드를 List<Feature>로 변환하는 메서드
     private List<Feature> parseFeatures(String features) {
         List<Feature> featureList = new ArrayList<>();
         if (features != null && !features.isEmpty()) {
             features = features.trim();
             if (features.startsWith("[") && features.endsWith("]")) {
-                features = features.substring(1, features.length() - 1).trim(); // 제거할 '[' 및 ']'
+                features = features.substring(1, features.length() - 1).trim();
                 String[] featureArray = features.split("\\},\\{");
                 for (String feature : featureArray) {
                     feature = feature.replaceAll("[{}\"]", "").trim();
@@ -164,17 +174,11 @@ public class ConsultDirect {
         private int value;
         private String description;
 
-        // 기본 생성자
-        public Feature() {
-        }
-
-        // 파라미터가 있는 생성자
         public Feature(int value, String description) {
             this.value = value;
             this.description = description;
         }
 
-        // Getter 및 Setter 메서드
         public int getValue() {
             return value;
         }
@@ -190,27 +194,6 @@ public class ConsultDirect {
         public void setDescription(String description) {
             this.description = description;
         }
-
-        @Override
-        public String toString() {
-            return "Feature{" +
-                    "value=" + value +
-                    ", description='" + description + '\'' +
-                    '}';
-        }
     }
 
-    // 로깅을 위한 메서드
-    private static void logFeatures(List<Feature> features) {
-        for (Feature feature : features) {
-            System.out.println("Feature - Value: " + feature.getValue() + ", Description: " + feature.getDescription());
-        }
-    }
-
-    public static void main(String[] args) {
-        String json = "[{value: 0, description:바보야},{value: 1, description:천재야}]";
-        ConsultDirect consultDirect = new ConsultDirect();
-        List<Feature> featureList = consultDirect.parseFeatures(json);
-        logFeatures(featureList);
-    }
 }
