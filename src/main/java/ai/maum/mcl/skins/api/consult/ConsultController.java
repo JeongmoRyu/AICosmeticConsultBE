@@ -117,9 +117,12 @@ public class ConsultController {
     ) {
         try {
             log.info("member_id: {}, consultNumber: {}", memberId, consultNumber);
-            log.info("data: {}", consultDirect.getFeatureList());
-
-            consultDirect.setFeatures(consultDirect.serializeFeatures(consultDirect.getFeatureList()));
+            log.info("data: {}", consultDirect);
+            consultDirect.setUserKey(memberId);
+            consultDirect.setconsultNumber(consultNumber);
+            String serializedData = consultDirect.serializeFeatures(consultDirect.getFeatureList());
+            log.info("serializedData: {}", serializedData);
+            consultDirect.setFeatures(serializedData);
 
             consultService.updateConsultDirect(consultDirect);
             return BaseResponse.success("Consultation updated successfully.");
@@ -131,5 +134,6 @@ public class ConsultController {
             return BaseResponse.failure("Failed to update consultation: {}", e.getMessage());
         }
     }
+
 
 }

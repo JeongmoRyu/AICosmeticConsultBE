@@ -24,10 +24,8 @@ public class ConsultDirect {
 
     @JsonIgnore
     private String features;
-
-    @JsonProperty("featureList")
+    @JsonProperty("feature_list")
     private List<Feature> featureList;
-
     public ConsultDirect() {
     }
 
@@ -125,27 +123,26 @@ public class ConsultDirect {
     public void setconsultNumber(Long consultNumber) {
         this.consultNumber = consultNumber;
     }
-
-    @JsonIgnore
+    @JsonProperty("features")
     public String getFeatures() {
         return features;
     }
-
-    @JsonIgnore
+    @JsonProperty("features")
     public void setFeatures(String features) {
         this.features = features;
         this.featureList = parseFeatures(features);
     }
 
-    @JsonProperty("featureList")
+    @JsonProperty("feature_list")
     public List<Feature> getFeatureList() {
         return featureList;
     }
 
-    @JsonProperty("featureList")
+    @JsonProperty("feature_list")
     public void setFeatureList(List<Feature> featureList) {
         this.featureList = featureList;
         this.features = serializeFeatures(featureList);
+
     }
 
 
@@ -184,16 +181,7 @@ public class ConsultDirect {
         return featureList;
     }
 
-//    public String serializeFeatures(List<Feature> featureList) {
-//        logger.info("featureList: {}",featureList.toString());
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            return objectMapper.writeValueAsString(featureList);
-//        } catch (Exception e) {
-//            logger.error("Error serializing features", e);
-//            return "";
-//        }
-//    }
+
 
     public String serializeFeatures(List<Feature> featureList) {
         if (featureList == null || featureList.isEmpty()) {
