@@ -1,17 +1,13 @@
-package ai.maum.mcl.skins.api.consult.model;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ConsultDirect {
     private static final Logger logger = LoggerFactory.getLogger(ConsultDirect.class);
@@ -28,7 +24,10 @@ public class ConsultDirect {
 
     @JsonIgnore
     private String features;
+    
+    @JsonProperty("featureList")
     private List<Feature> featureList;
+
     public ConsultDirect() {
     }
 
@@ -119,69 +118,44 @@ public class ConsultDirect {
         this.etc = etc;
     }
 
-    public Long getconsultNumber() {
+    public Long getConsultNumber() {
         return consultNumber;
     }
 
-    public void setconsultNumber(Long consultNumber) {
+    public void setConsultNumber(Long consultNumber) {
         this.consultNumber = consultNumber;
     }
 
-    @JsonProperty("features")
+    @JsonIgnore
     public String getFeatures() {
         return features;
     }
 
-    @JsonProperty("features")
+    @JsonIgnore
     public void setFeatures(String features) {
         this.features = features;
         this.featureList = parseFeatures(features);
     }
 
+    @JsonProperty("featureList")
     public List<Feature> getFeatureList() {
         return featureList;
     }
 
+    @JsonProperty("featureList")
     public void setFeatureList(List<Feature> featureList) {
         this.featureList = featureList;
         this.features = serializeFeatures(featureList);
-
     }
 
-
     private List<Feature> parseFeatures(String features) {
-        List<Feature> featureList = new ArrayList<>();
-        if (features != null && !features.isEmpty()) {
-            features = features.trim();
-            if (features.startsWith("[") && features.endsWith("]")) {
-                features = features.substring(1, features.length() - 1).trim();
-                String[] featureArray = features.split("\\},\\{");
-                for (String feature : featureArray) {
-                    feature = feature.replaceAll("[{}\"]", "").trim();
-                    String[] parts = feature.split(",");
-                    int value = 0;
-                    String description = "";
-                    for (String part : parts) {
-                        String[] keyValue = part.split(":");
-                        if (keyValue.length == 2) {
-                            String key = keyValue[0].trim();
-                            String val = keyValue[1].trim();
-                            if (key.equals("value")) {
-                                try {
-                                    value = Integer.parseInt(val);
-                                } catch (NumberFormatException e) {
-                                    e.printStackTrace();
-                                }
-                            } else if (key.equals("description")) {
-                                description = val;
-                            }
-                        }
-                    }
-                    featureList.add(new Feature(value, description));
-                }
-            }
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(features, new TypeReference<List<Feature>>() {});
+        } catch (Exception e) {
+            logger.error("Error parsing features", e);
+            return new ArrayList<>();
         }
-        return featureList;
     }
 
     public String serializeFeatures(List<Feature> featureList) {
@@ -193,27 +167,13 @@ public class ConsultDirect {
             return "";
         }
     }
-    public String serializeFeatures(List<Feature> featureList) {
-        if (featureList == null || featureList.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < featureList.size(); i++) {
-            Feature feature = featureList.get(i);
-            sb.append("{\"value\":").append(feature.getValue())
-              .append(",\"description\":\"").append(feature.getDescription()).append("\"}");
-            if (i < featureList.size() - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }
 
     public static class Feature {
         private int value;
         private String description;
+
+        public Feature() {
+        }
 
         public Feature(int value, String description) {
             this.value = value;
@@ -236,5 +196,4 @@ public class ConsultDirect {
             this.description = description;
         }
     }
-
 }
