@@ -127,10 +127,12 @@ public class ConsultDirect {
         this.consultNumber = consultNumber;
     }
 
+    @JsonProperty("features")
     public String getFeatures() {
         return features;
     }
 
+    @JsonProperty("features")
     public void setFeatures(String features) {
         this.features = features;
         this.featureList = parseFeatures(features);
@@ -182,7 +184,15 @@ public class ConsultDirect {
         return featureList;
     }
 
-
+    public String serializeFeatures(List<Feature> featureList) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(featureList);
+        } catch (Exception e) {
+            logger.error("Error serializing features", e);
+            return "";
+        }
+    }
     public String serializeFeatures(List<Feature> featureList) {
         if (featureList == null || featureList.isEmpty()) {
             return "";

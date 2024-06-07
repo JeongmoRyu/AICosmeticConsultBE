@@ -47,7 +47,7 @@ public class ConsultService {
         log.info("parameters: {}",parameters);
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
-    public void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber) {
+    public void updateConsultDirect(ConsultDirect consultDirect) {
         try {
             consultMapper.updateConsultDirect(consultDirect);
         } catch (DataAccessException e) {
