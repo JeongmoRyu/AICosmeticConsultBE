@@ -107,30 +107,29 @@ public class ConsultController {
             return BaseResponse.failure("Failed to update consultation: {}", e.getMessage());
         }
     }
+    
     @Operation(summary = "대면 상담 수정", description = "대면상담 특정 차수 수정하기")
-@PutMapping("/direct/{memberId}/{consultNumber}")
-public BaseResponse<String> updateConsultDirect(
-        @PathVariable Long memberId,
-        @PathVariable Long consultNumber,
-        @RequestBody ConsultDirect consultDirect
-) {
-    try {
-        log.info("member_id, consultNumber: {}", memberId + consultNumber);
-        log.info("data: {}", consultDirect.getFeatureList());
+    @PutMapping("/direct/{memberId}/{consultNumber}")
+    public BaseResponse<String> updateConsultDirect(
+            @PathVariable Long memberId,
+            @PathVariable Long consultNumber,
+            @RequestBody ConsultDirect consultDirect
+    ) {
+        try {
+            log.info("member_id: {}, consultNumber: {}", memberId, consultNumber);
+            log.info("data: {}", consultDirect.getFeatureList());
 
-        if (consultDirect.getFeatureList() != null) {
             consultDirect.setFeatures(consultDirect.serializeFeatures(consultDirect.getFeatureList()));
-        }
 
-        consultService.updateConsultDirect(consultDirect);
-        return BaseResponse.success("Consultation updated successfully.");
-    } catch (DataAccessException e) {
-        log.error("Database access error occurred", e);
-        return BaseResponse.failure("Failed to update consultation due to database error.: " + e.getMessage());
-    } catch (Exception e) {
-        log.error("Error updating consultation", e);
-        return BaseResponse.failure("Failed to update consultation: " + e.getMessage());
+            consultService.updateConsultDirect(consultDirect);
+            return BaseResponse.success("Consultation updated successfully.");
+        } catch (DataAccessException e) {
+            log.error("Database access error occurred", e);
+            return BaseResponse.failure("Failed to update consultation due to database error.: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Error updating consultation", e);
+            return BaseResponse.failure("Failed to update consultation: {}", e.getMessage());
+        }
     }
-}
 
 }

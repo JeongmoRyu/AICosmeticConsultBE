@@ -49,12 +49,13 @@ public class ConsultService {
     }
     public void updateConsultDirect(ConsultDirect consultDirect) {
         try {
+            log.info("before update: {}, {}", consultDirect.getFeatures(), consultDirect.getFeatureList());
             consultMapper.updateConsultDirect(consultDirect);
         } catch (DataAccessException e) {
-            logger.error("Database access error occurred while updating", e);
+            log.error("Database access error occurred while updating", e);
             throw e;
         } catch (Exception e) {
-            logger.error("Error updating consultation", e);
+            log.error("Error updating consultation", e);
             throw e;
         }
     }

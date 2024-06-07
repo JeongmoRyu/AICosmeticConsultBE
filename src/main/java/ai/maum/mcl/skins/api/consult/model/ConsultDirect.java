@@ -1,7 +1,7 @@
+package ai.maum.mcl.skins.api.consult.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class ConsultDirect {
 
     @JsonIgnore
     private String features;
-    
+
     @JsonProperty("featureList")
     private List<Feature> featureList;
 
@@ -118,11 +118,11 @@ public class ConsultDirect {
         this.etc = etc;
     }
 
-    public Long getConsultNumber() {
+    public Long getconsultNumber() {
         return consultNumber;
     }
 
-    public void setConsultNumber(Long consultNumber) {
+    public void setconsultNumber(Long consultNumber) {
         this.consultNumber = consultNumber;
     }
 
@@ -184,7 +184,17 @@ public class ConsultDirect {
         return featureList;
     }
 
-    
+//    public String serializeFeatures(List<Feature> featureList) {
+//        logger.info("featureList: {}",featureList.toString());
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            return objectMapper.writeValueAsString(featureList);
+//        } catch (Exception e) {
+//            logger.error("Error serializing features", e);
+//            return "";
+//        }
+//    }
+
     public String serializeFeatures(List<Feature> featureList) {
         if (featureList == null || featureList.isEmpty()) {
             return "";
@@ -203,13 +213,9 @@ public class ConsultDirect {
         logger.info("sb: {}", sb.toString());
         return sb.toString();
     }
-
     public static class Feature {
         private int value;
         private String description;
-
-        public Feature() {
-        }
 
         public Feature(int value, String description) {
             this.value = value;
@@ -232,4 +238,5 @@ public class ConsultDirect {
             this.description = description;
         }
     }
+
 }
