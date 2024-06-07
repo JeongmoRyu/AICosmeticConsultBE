@@ -49,7 +49,7 @@ public class ConsultService {
     }
     public void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber) {
         try {
-            consultDirectMapper.updateConsultDirect(consultDirect, memberId, consultNumber);
+            consultMapper.updateConsultDirect(consultDirect);
         } catch (DataAccessException e) {
             logger.error("Database access error occurred while updating", e);
             throw e;

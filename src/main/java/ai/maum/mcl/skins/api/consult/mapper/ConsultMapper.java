@@ -16,6 +16,6 @@ public interface ConsultMapper {
 
   public List<ConsultIndirect> getConsultIndirectInfo(Long id);
   public List<SignificantGroup> getConsultSignificantGroup();
-  void updateConsultDirect(ConsultDirect consultDirect, Long memberId, Long consultNumber);
+  void updateConsultDirect(ConsultDirect consultDirect);
 
 }

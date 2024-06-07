@@ -84,22 +84,28 @@ public class ConsultController {
         return consultService.getSignificantGroup();
     }
 
+    @Operation(summary = "대면 상담 수정", description = "대면상담 특정 차수 수정하기")
     @PutMapping("/direct/{memberId}/{consultNumber}")
     public BaseResponse<String> updateConsultDirect(
             @PathVariable Long memberId,
             @PathVariable Long consultNumber,
             @RequestBody ConsultDirect consultDirect
-        ) {
+    ) {
         try {
-            consultDirectService.updateConsultDirect(consultDirect, memberId, consultNumber);
+            if (consultDirect.getFeatureList() != null) {
+                log.info("member_id, consultNubmer: {}", memberId + consultNumber);
+                log.info("data: {}", consultDirect.getFeatureList());
+                consultDirect.setFeatures(consultDirect.serializeFeatures(consultDirect.getFeatureList()));
+            }
+            consultService.updateConsultDirect(consultDirect);
             return BaseResponse.success("Consultation updated successfully.");
         } catch (DataAccessException e) {
-            logger.error("Database access error occurred", e);
-            return BaseResponse.error("Failed to update consultation due to database error.");
+            log.error("Database access error occurred", e);
+            return BaseResponse.failure("Failed to update consultation due to database error.: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Error updating consultation", e);
-            return BaseResponse.error("Failed to update consultation: " + e.getMessage());
+            log.error("Error updating consultation", e);
+            return BaseResponse.failure("Failed to update consultation: {}", e.getMessage());
         }
-    }   
+    }
 
 }
