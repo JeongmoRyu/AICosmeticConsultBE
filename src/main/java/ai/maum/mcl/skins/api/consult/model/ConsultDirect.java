@@ -148,24 +148,60 @@ public class ConsultDirect {
         this.features = serializeFeatures(featureList);
     }
 
+
     private List<Feature> parseFeatures(String features) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(features, new TypeReference<List<Feature>>() {});
-        } catch (Exception e) {
-            logger.error("Error parsing features", e);
-            return new ArrayList<>();
+        List<Feature> featureList = new ArrayList<>();
+        if (features != null && !features.isEmpty()) {
+            features = features.trim();
+            if (features.startsWith("[") && features.endsWith("]")) {
+                features = features.substring(1, features.length() - 1).trim();
+                String[] featureArray = features.split("\\},\\{");
+                for (String feature : featureArray) {
+                    feature = feature.replaceAll("[{}\"]", "").trim();
+                    String[] parts = feature.split(",");
+                    int value = 0;
+                    String description = "";
+                    for (String part : parts) {
+                        String[] keyValue = part.split(":");
+                        if (keyValue.length == 2) {
+                            String key = keyValue[0].trim();
+                            String val = keyValue[1].trim();
+                            if (key.equals("value")) {
+                                try {
+                                    value = Integer.parseInt(val);
+                                } catch (NumberFormatException e) {
+                                    e.printStackTrace();
+                                }
+                            } else if (key.equals("description")) {
+                                description = val;
+                            }
+                        }
+                    }
+                    featureList.add(new Feature(value, description));
+                }
+            }
         }
+        return featureList;
     }
 
+    
     public String serializeFeatures(List<Feature> featureList) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(featureList);
-        } catch (Exception e) {
-            logger.error("Error serializing features", e);
+        if (featureList == null || featureList.isEmpty()) {
             return "";
         }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < featureList.size(); i++) {
+            Feature feature = featureList.get(i);
+            sb.append("{\"value\":").append(feature.getValue())
+                    .append(",\"description\":\"").append(feature.getDescription()).append("\"}");
+            if (i < featureList.size() - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append("]");
+        logger.info("sb: {}", sb.toString());
+        return sb.toString();
     }
 
     public static class Feature {
