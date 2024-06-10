@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ai.maum.mcl.skins.api.time.mapper.TimeMapper">
+    <select id="findDataByTime" resultType="ai.maum.mcl.skins.api.time.model.Time" parameterType="Long">
+        SELECT *
+        FROM skins.citylab_member a
+        WHERE a.chat_updated >= date_trunc('month', to_timestamp($yyyy || '-' || $mm, 'YYYY-MM'))
+            AND a.chat_updated < date_trunc('month',to_timestamp($yyyy || '-' || $mm, 'YYYY-MM')) + interval  '1 month'
+    </select>
+    <select id="findDataByTime2" resultType="ai.maum.mcl.skins.api.time.model.Time" parameterType="Long">
+        SELECT *
+        FROM skins.tb_consult_info a
+        WHERE userkey = #{userkey}
+            AND EXTRACT(year from a.consult_date) = #{YEAR}
+            AND EXTRACT(month from a.consult_date) = #{MONTH}
+        ORDER BY consult_date desc
+    </select>
+
+</mapper>
