@@ -10,7 +10,7 @@ import ai.maum.mcl.skins.api.measure.model.MeasureInfo;
 import ai.maum.mcl.skins.api.measure.service.MeasureService;
 import ai.maum.mcl.skins.api.member.model.Member;
 import ai.maum.mcl.skins.api.member.model.MemberResult;
-import ai.maum.mcl.skins.api.member.model.MemberSearch;
+import ai.maum.mcl.skins.api.member.model.MemberList;
 import ai.maum.mcl.skins.api.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,9 +18,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,102 +173,15 @@ public class MemberController {
 
         return result;
     }
-
-    @Operation(summary = "고객List", description = "고객 목록 조회")
-    @GetMapping("/list")
-    public BaseResponse<List<Member>> getMemberList(
-//            @AuthenticationPrincipal MemberDetail member
-    ) {
-        List<Member> memberList = new ArrayList<Member>();
-        return BaseResponse.success(memberList);
-    }
-
-
-    @Operation(summary = "고객이름조회(전체)", description = "고객이름조회(전체내용)")
-    @GetMapping("/search")
-    public BaseResponse<List<MemberSearch>> getMemberSearch() {
-
-        List<MemberSearch> allMembers = memberService.loadUsersList();
-        List<MemberSearch> memberSearchList = new ArrayList<>();
-
-        for (MemberSearch member : allMembers) {
-
-            MemberSearch memberSearch = new MemberSearch(
-                    member.getId(),
-                    member.getName(),
-                    member.getSex(),
-                    member.getAge(),
-                    member.getConcern1(),
-                    member.getConcern2(),
-                    member.getConsultCount(),
-                    member.getBirthday(),
-                    member.getPhone(),
-                    member.getBirthCd(),
-                    member.getExtractedYear()
-            );
-
-            memberSearchList.add(memberSearch);
-        }
-        return BaseResponse.success(memberSearchList);
-    }
-
-    @Operation(summary = "리스트", description = "리스트")
-    @GetMapping("/list")
-    public BaseResponse<List<MemberList>> getMemberList(
-        @RequestParam(required = false, defaultValue = "asc") String order
-        ) {
-
-
-        List<MemberList> allMembers = memberService.loadUsersList(order);
-        List<MemberList> memberListList = new ArrayList<>();
-
-        for (MemberList member : allMembers) {
-            MemberList memberSearch = new MemberList(
-                    member.getId(),
-                    member.getName(),
-                    member.getSex(),
-                    member.getAge(),
-                    member.getConcern1(),
-                    member.getConcern2(),
-                    member.getConsultCount(),
-                    member.getBirthday(),
-                    member.getPhone(),
-                    member.getBirthCd(),
-                    member.getExtractedYear()
-            );
-            memberSearchList.add(memberList);
-        }
-        return BaseResponse.success(memberListList);
-    }
-
-    @Operation(summary = "리스트", description = "리스트")
-    @GetMapping("/list")
-    public BaseResponse<List<MemberList>> getMemberList(
-        @RequestParam(required = false, defaultValue = "asc") String order,
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) Integer age
-    ) {
-        List<MemberList> allMembers = memberService.loadUsersList(order, name, age);
-        List<MemberList> memberListList = new ArrayList<>();
-
-        for (MemberList member : allMembers) {
-            MemberList memberSearch = new MemberList(
-                    member.getId(),
-                    member.getName(),
-                    member.getSex(),
-                    member.getAge(),
-                    member.getConcern1(),
-                    member.getConcern2(),
-                    member.getConsultCount(),
-                    member.getBirthday(),
-                    member.getPhone(),
-                    member.getBirthCd(),
-                    member.getExtractedYear()
-            );
-            memberSearchList.add(memberList);
-        }
-        return BaseResponse.success(memberListList);
-    }
+//
+//    @Operation(summary = "고객List", description = "고객 목록 조회")
+//    @GetMapping("/list")
+//    public BaseResponse<List<Member>> getMemberList(
+////            @AuthenticationPrincipal MemberDetail member
+//    ) {
+//        List<Member> memberList = new ArrayList<Member>();
+//        return BaseResponse.success(memberList);
+//    }
 
 
     @Operation(summary = "고객리스트(전체,이름, 나이, 채팅, 순서)", description = "고객리스트(전체,이름, 나이, 채팅, 순서) param")
@@ -294,40 +207,13 @@ public class MemberController {
                     member.getBirthday(),
                     member.getPhone(),
                     member.getBirthCd(),
-                    member.getExtractedYear()
+                    member.getExtractedYear(),
+                    member.getSite()
             );
             memberListList.add(memberList);
         }
         return BaseResponse.success(memberListList);
     }
 
-    @Operation(summary = "고객이름으로 조회", description = "고객 이름으로 조회 ORDER param 사용 가능")
-    @GetMapping("/list/{name}")
-    public BaseResponse<List<MemberList>> getMemberListByName(
-            @PathVariable String name,
-            @RequestParam(required = false, defaultValue = "asc") String order
-//            @PathVariable(name="user_name", required = false) @Parameter(name="user_name", required = true) String name
-//            @PathVariable(name="user_age", required = false) @Parameter(name="user_age", required = false) String age
-    ) {
-        List<MemberList> membersByName = memberService.loadUsersListByName(name, order);
-        List<MemberList> memberSearchList = new ArrayList<>();
 
-        for (MemberList member : membersByName) {
-            MemberList memberSearch = new MemberList(
-                    member.getId(),
-                    member.getName(),
-                    member.getSex(),
-                    member.getAge(),
-                    member.getConcern1(),
-                    member.getConcern2(),
-                    member.getConsultCount(),
-                    member.getBirthday(),
-                    member.getPhone(),
-                    member.getBirthCd(),
-                    member.getExtractedYear()
-            );
-            memberSearchList.add(memberSearch);
-        }
-        return BaseResponse.success(memberSearchList);
-    }
 }

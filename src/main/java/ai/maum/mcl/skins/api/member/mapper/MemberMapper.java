@@ -12,11 +12,10 @@ import java.util.List;
 public interface MemberMapper {
     public Member findMemberById(Long id);
     public List<MemberSearch> findListMemberById(String order);
-    public List<MemberList> findListMemberByName(String name, String order);
 
     // void updateChatTime(@Param("memberId") Long memberId, @Param("chatUpdated") Timestamp chatUpdated);
-    // Member findById(@Param("memberId") Long memberId);
     void updateChatTime(@Param("memberId") Long memberId, @Param("chatUpdated") Timestamp chatUpdated);
+    public List<MemberList> findListMemberById(Map<String, Object> params);
 
 }
 

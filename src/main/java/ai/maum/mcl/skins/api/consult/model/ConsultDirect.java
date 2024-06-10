@@ -12,15 +12,16 @@ import java.util.List;
 public class ConsultDirect {
     private static final Logger logger = LoggerFactory.getLogger(ConsultDirect.class);
     private String id;
-    private Timestamp consultDate;
+    private Timestamp consult_date;
     private Long userKey;
-    private String consultData;
+    private String consult_data;
     private String concern1;
     private String concern2;
     private String product;
     private String significant;
     private String etc;
     private Long consultNumber;
+    private String manager;
 
     @JsonIgnore
     private String features;
@@ -29,11 +30,11 @@ public class ConsultDirect {
     public ConsultDirect() {
     }
 
-    public ConsultDirect(String id, Timestamp consultDate, Long userKey, String consultData, String concern1, String concern2, String product, String significant, String etc, String features, Long consultNumber) {
+    public ConsultDirect(String id, Timestamp consult_date, Long userKey, String consult_data, String concern1, String concern2, String product, String significant, String etc, String features, Long consultNumber, String manager) {
         this.id = id;
-        this.consultDate = consultDate;
+        this.consult_date = consult_date;
         this.userKey = userKey;
-        this.consultData = consultData;
+        this.consult_data = consult_data;
         this.concern1 = concern1;
         this.concern2 = concern2;
         this.product = product;
@@ -42,6 +43,7 @@ public class ConsultDirect {
         this.features = features;
         this.featureList = parseFeatures(features);
         this.consultNumber = consultNumber;
+        this.manager = manager;
     }
 
     public String getId() {
@@ -52,12 +54,20 @@ public class ConsultDirect {
         this.id = id;
     }
 
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
     public Timestamp getConsultDate() {
-        return consultDate;
+        return consult_date;
     }
 
     public void setConsultDate(Timestamp consultDate) {
-        this.consultDate = consultDate;
+        this.consult_date = consultDate;
     }
 
     public Long getUserKey() {
@@ -69,11 +79,11 @@ public class ConsultDirect {
     }
 
     public String getConsultData() {
-        return consultData;
+        return consult_data;
     }
 
     public void setConsultData(String consultData) {
-        this.consultData = consultData;
+        this.consult_data = consultData;
     }
 
     public String getConcern1() {
@@ -181,7 +191,16 @@ public class ConsultDirect {
         return featureList;
     }
 
-
+//    public String serializeFeatures(List<Feature> featureList) {
+//        logger.info("featureList: {}",featureList.toString());
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            return objectMapper.writeValueAsString(featureList);
+//        } catch (Exception e) {
+//            logger.error("Error serializing features", e);
+//            return "";
+//        }
+//    }
 
     public String serializeFeatures(List<Feature> featureList) {
         if (featureList == null || featureList.isEmpty()) {
