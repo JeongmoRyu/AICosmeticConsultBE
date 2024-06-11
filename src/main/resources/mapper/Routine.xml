@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ai.maum.mcl.skins.api.time.mapper.RoutineMapper">
+    <select id="findMemberByChatUpdated" resultType="ai.maum.mcl.skins.api.time.model.Routine" parameterType="Long">
+        SELECT a.id, a.name, a.chat_updated, a.phone
+        FROM skins.citylab_member a
+        WHERE a.chat_updated > now() - interval '24 hours';
+
+    </select>
+</mapper>
