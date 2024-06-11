@@ -28,46 +28,44 @@ import java.util.Map;
 public class RoutineService {
     private final MemberMapper memberMapper;
 
-    @Scheduled(fixedRate = 1*60*1000)
-    public void executeRoutine() throws IOException {
-        log.info("-------------- ROUTINE START ---------------------");
-        List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
-        log.info("allmembers: {}",allMembers);
-        List<Long> idList = new ArrayList<>();
-        Timestamp now = Timestamp.from(Instant.now());
-        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
+//    @Scheduled(cron = "0 0 0 * * ?")
+//    @Scheduled(fixedRate = 2*60*1000)
+public void executeRoutine() throws IOException {
+    log.info("-------------- ROUTINE START ---------------------");
+    List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
+    log.info("allmembers: {}",allMembers);
+    List<Long> idList = new ArrayList<>();
+    Timestamp now = Timestamp.from(Instant.now());
+    Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
 
-        for (MemberChatTime member : allMembers) {
-            Timestamp chatUpdated = member.getChatUpdated();
-            if (chatUpdated != null && chatUpdated.after(twentyFourHoursAgo)) {
-                Long selectedId = member.getId();
-                idList.add(selectedId);
-                List<ChatroomDetail> chatroomDetailList = new ArrayList<ChatroomDetail>();
-                String strData = callProaiService.callProaiGet("/extapi/inner/chatroom/detail/" + selectedId);
-                log.info("strData :{}",strData);
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode data = objectMapper.readTree(strData).path("data");
-                chatroomDetailList = objectMapper.readValue(
-                        data.traverse(),
-                        new TypeReference<List<ChatroomDetail>>() {});
-                
-                List<ChatroomDetail> filteredChatroomDetails = new ArrayList<>();
+    for (MemberChatTime member : allMembers) {
+        Timestamp chatUpdated = member.getChatUpdated();
+        if (chatUpdated != null && chatUpdated.after(twentyFourHoursAgo)) {
+            Long selectedId = member.getId();
+            idList.add(selectedId);
+            List<ChatroomDetail> chatroomDetailList = new ArrayList<ChatroomDetail>();
+            String strData = callProaiService.callProaiGet("/extapi/inner/chatroom/detail/" + selectedId);
+//                log.info("strData :{}",strData);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode data = objectMapper.readTree(strData).path("data");
+            chatroomDetailList = objectMapper.readValue(
+                    data.traverse(),
+                    new TypeReference<List<ChatroomDetail>>() {});
+            List<ChatroomDetail> filteredChatroomDetails = new ArrayList<>();
 
-                for (ChatroomDetail detail : chatroomDetailList) {
-                    if ((detail.getCreated_at() != null && detail.getCreated_at().after(twentyFourHoursAgo)) ||
+            for (ChatroomDetail detail : chatroomDetailList) {
+                if ((detail.getCreated_at() != null && detail.getCreated_at().after(twentyFourHoursAgo)) ||
                         (detail.getUpdated_at() != null && detail.getUpdated_at().after(twentyFourHoursAgo))) {
-                        filteredChatroomDetails.add(detail);
-                    }
+                    filteredChatroomDetails.add(detail);
                 }
-
             }
-        }
-
-        log.info("IDs with chat_updated less than 24 hours: {}", idList);
-        for (Long id: idList) {
+            log.info("filteredChatroomDetails: {}", filteredChatroomDetails);
 
         }
-        log.info("-------------- ROUTINE END ---------------------");
     }
 
+    log.info("IDs with chat_updated less than 24 hours: {}", idList);
+
+    log.info("-------------- ROUTINE END ---------------------");
+}
 }
