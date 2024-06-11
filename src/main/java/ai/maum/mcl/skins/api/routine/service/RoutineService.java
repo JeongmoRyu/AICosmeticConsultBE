@@ -50,6 +50,15 @@ public class RoutineService {
                 chatroomDetailList = objectMapper.readValue(
                         data.traverse(),
                         new TypeReference<List<ChatroomDetail>>() {});
+                
+                List<ChatroomDetail> filteredChatroomDetails = new ArrayList<>();
+
+                for (ChatroomDetail detail : chatroomDetailList) {
+                    if ((detail.getCreated_at() != null && detail.getCreated_at().after(twentyFourHoursAgo)) ||
+                        (detail.getUpdated_at() != null && detail.getUpdated_at().after(twentyFourHoursAgo))) {
+                        filteredChatroomDetails.add(detail);
+                    }
+                }
 
             }
         }
