@@ -30,8 +30,17 @@ public class RoutineService {
         Map<String, Object> param = new HashMap<>();
         List<MemberList> allMembers = memberMapper.findListMemberById(param);
         
-        List<Long> idList = new ArrayList<Long>();
-        
+        List<Long> idList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
 
+        for (MemberList member : allMembers) {
+            if (member.getChatUpdated() != null && member.getChatUpdated().isBefore(now.minusHours(24))) {
+                idList.add(member.getId());
+            }
+        }
+
+        log.info("IDs with chat_updated older than 24 hours: {}", idList);
+        log.info("-------------- ROUTINE END ---------------------");
     }
 }
+
