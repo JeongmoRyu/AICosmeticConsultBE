@@ -8,4 +8,7 @@ public class ChatHistory {
     private Long seq;
     private String input;
     private String output;
+
+    public ChatHistory(Long seq, Object o, Object o1) {
+    }
 }

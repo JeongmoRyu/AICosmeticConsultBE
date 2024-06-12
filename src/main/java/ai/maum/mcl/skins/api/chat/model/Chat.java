@@ -7,4 +7,7 @@ import lombok.Setter;
 public class Chat {
     private String input;
     private String output;
+
+    public Chat(String input, String output) {
+    }
 }
