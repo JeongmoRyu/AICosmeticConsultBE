@@ -55,38 +55,36 @@ public class RoutineService {
     
 
 
+@Scheduled(cron = "0 0 0 * * ?")
+// @Scheduled(fixedRate = 2*60*1000)
+public void executeRoutine() throws IOException {
+    log.info("-------------- ROUTINE START ---------------------");
+    List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
+    log.info("allmembers: {}", allMembers);
+    List<Long> idList = new ArrayList<>();
+    Timestamp now = Timestamp.from(Instant.now());
+    Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
 
-    @Scheduled(cron = "0 0 0 * * ?")
-//    @Scheduled(fixedRate = 2*60*1000)
-    public void executeRoutine() throws IOException {
-        log.info("-------------- ROUTINE START ---------------------");
-        List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
-        log.info("allmembers: {}",allMembers);
-        List<Long> idList = new ArrayList<>();
-        Timestamp now = Timestamp.from(Instant.now());
-        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
+    for (MemberChatTime member : allMembers) {
+        Timestamp chatUpdated = member.getChatUpdated();
+        if (chatUpdated != null && chatUpdated.after(twentyFourHoursAgo)) {
+            Long selectedId = member.getId();
+            idList.add(selectedId);
+            List<ChatroomDetail> chatroomDetailList = new ArrayList<>();
+            String strData = callProaiService.callProaiGet("/extapi/inner/chatroom/detail/" + selectedId);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode data = objectMapper.readTree(strData).path("data");
+            chatroomDetailList = objectMapper.readValue(
+                    data.traverse(),
+                    new TypeReference<List<ChatroomDetail>>() {});
+            List<ChatroomDetail> filteredChatroomDetails = new ArrayList<>();
 
-        for (MemberChatTime member : allMembers) {
-            Timestamp chatUpdated = member.getChatUpdated();
-            if (chatUpdated != null && chatUpdated.after(twentyFourHoursAgo)) {
-                Long selectedId = member.getId();
-                idList.add(selectedId);
-                List<ChatroomDetail> chatroomDetailList = new ArrayList<ChatroomDetail>();
-                String strData = callProaiService.callProaiGet("/extapi/inner/chatroom/detail/" + selectedId);
-//                log.info("strData :{}",strData);
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode data = objectMapper.readTree(strData).path("data");
-                chatroomDetailList = objectMapper.readValue(
-                        data.traverse(),
-                        new TypeReference<List<ChatroomDetail>>() {});
-                List<ChatroomDetail> filteredChatroomDetails = new ArrayList<>();
-
-                for (ChatroomDetail detail : chatroomDetailList) {
-                    if ((detail.getCreated_at() != null && detail.getCreated_at().after(twentyFourHoursAgo)) ||
-                            (detail.getUpdated_at() != null && detail.getUpdated_at().after(twentyFourHoursAgo))) {
-                        filteredChatroomDetails.add(detail);
-                    }
+            for (ChatroomDetail detail : chatroomDetailList) {
+                if ((detail.getCreated_at() != null && detail.getCreated_at().after(twentyFourHoursAgo)) ||
+                        (detail.getUpdated_at() != null && detail.getUpdated_at().after(twentyFourHoursAgo))) {
+                    filteredChatroomDetails.add(detail);
                 }
+            }
 
                 // grpc 형태에 맞춰서 chat으로 제작
                 Map<Long, ChatHistory> chatHistoryMap = new HashMap<>();
@@ -106,49 +104,44 @@ public class RoutineService {
                         .collect(Collectors.toList());
                 log.info("chatList: {}", chatList);
 
-                // grpc 연결해서 질문보내기
-                // list 와 prompt를 보내기
-                try {
-                    ChatStreamObserverHandler requestObserver = connectionHandler.getStreamObserver(selectedId);
-                    if (requestObserver == null) {
-                        requestObserver = connectionHandler.createStreamObserver(selectedId);
-                    }
-                    requestObserver.setBaseStreamObserver();
+            // gRPC 연결해서 Summarize 요청 보내기
+            try {
+                ChatGrpcConnectionHandler.SummarizeRequestObject requestObject = connectionHandler.createSummarizeRequestObject(selectedId);
+                RagServiceGrpc.RagServiceBlockingStub blockingStub = requestObject.getStub();
 
-                    Config.Builder configBuilder = Config.newBuilder()
-                            .setPromptFormat(basePrompt);
+                LLMParameters llmParams = LLMParameters.newBuilder()
+                        .setPromptFormat(basePrompt)
+                        .build();
 
-
-                    Config config = configBuilder.build();
-                    ChatRequest requestWithConfig = ChatRequest.newBuilder()
-                            .setConfig(config)
-                            .build();
-                    requestObserver.onNext(requestWithConfig);
-                    ChatRequest requestWithMessage =
-                            ChatRequest.newBuilder()
-                                    .setMsg(chatList)
-                                    .build();
-                    requestObserver.onNext(requestWithMessage);
-
-                } catch (Exception e) {
-                    log.error("[GRPC_CHAT] Exception {}", e.getMessage());
-                }
+                SummRequest summRequest = SummRequest.newBuilder()
+                        .setLlmParams(llmParams)
+                        .addAllChatHistory(chatList)
+                        .build();
 
                 // 답변 받아오기(string으로 나올 예정)
                 // data 정리를 통해서 consult_type, consult_data, significant 분류
+                SummResponse summResponse = blockingStub.chatSummarize(summRequest);
 
-//                Map<String, String> resultGrpc = parseData(grpcdata);
+                log.info("Summarize response: {}", summResponse.getResponse());
+
+                // 여기서 summResponse.getResponse()를 파싱하여 필요한 데이터로 변환
+                Map<String, String> resultGrpc = parseData(summResponse.getResponse());
 
                 // indirect 형식에 맞춰서 나머지 데이터 넣기
                 // 정렬된 indirect model에 맞춰 insert indirect data
+
+            } catch (Exception e) {
+                log.error("[GRPC_SUMMARIZE] Exception {}", e.getMessage());
             }
-
         }
-
-        log.info("IDs with chat_updated less than 24 hours: {}", idList);
-
-        log.info("-------------- ROUTINE END ---------------------");
     }
+
+    log.info("IDs with chat_updated less than 24 hours: {}", idList);
+    log.info("-------------- ROUTINE END ---------------------");
+}
+
+
+
 
     public static Map<String, String> parseData(String data) {
         Map<String, String> resultMap = new HashMap<>();
