@@ -90,32 +90,32 @@ public class RoutineService {
                         .collect(Collectors.toList());
                 log.info("chatList: {}", chatList);
             }
-            public static void main(String[] args) {
-                String data = "A:value with spaces and 😊 emojis, B:another value, C:yet another value";
-                Map<String, String> parsedData = parseData(data);
+            // public static void main(String[] args) {
+            //     String data = "A:value with spaces and 😊 emojis, B:another value, C:yet another value";
+            //     Map<String, String> parsedData = parseData(data);
 
-                System.out.println("A: " + parsedData.get("A"));
-                System.out.println("B: " + parsedData.get("B"));
-                System.out.println("C: " + parsedData.get("C"));
-            }
+            //     System.out.println("A: " + parsedData.get("A"));
+            //     System.out.println("B: " + parsedData.get("B"));
+            //     System.out.println("C: " + parsedData.get("C"));
+            // }
 
             public static Map<String, String> parseData(String data) {
                 Map<String, String> resultMap = new HashMap<>();
-                
+        
                 // Regular expression to match patterns like "A:---"
-                String regex = "(?<=\\bA:|\\bB:|\\bC:)(.*?)(?=,\\s*\\bA:|,\\s*\\bB:|,\\s*\\bC:|$)";
-                String[] keys = {"A", "B", "C"};
-                
+                String regex = "(?<=\\bconsult_type:|\\bconsult_data:|\\bsignificant:)(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
+                String[] keys = {"consult_type", "consult_data", "significant"};
+        
                 for (String key : keys) {
                     // Find the substring that matches the pattern
-                    String pattern = key + ":(.*?)(?=,\\s*\\bA:|,\\s*\\bB:|,\\s*\\bC:|$)";
+                    String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
                     String value = data.replaceAll(".*" + pattern + ".*", "$1").trim();
-                    
+        
                     // Remove any leading or trailing comma
                     value = value.replaceAll(",$", "").trim();
                     resultMap.put(key, value);
                 }
-                
+        
                 return resultMap;
             }
         }
