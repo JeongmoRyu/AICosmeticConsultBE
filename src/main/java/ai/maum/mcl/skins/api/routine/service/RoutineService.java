@@ -15,12 +15,20 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import ai.maum.mcl.skins.api.chat.handler.ChatStreamObserverHandler;
+import ai.maum.mcl.skins.api.chat.handler.ChatGrpcConnectionHandler;
+import rag_service.rag_module.Rag.Config;
+import rag_service.rag_module.Rag.Chat;
+
+
+
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -38,10 +46,18 @@ import java.util.stream.Collectors;
 public class RoutineService {
     private final MemberMapper memberMapper;
     private final CallProaiService callProaiService;
+    private final ChatGrpcConnectionHandler connectionHandler;
 
 
-//    @Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(fixedRate = 2*60*1000)
+    private String basePrompt = "채팅들을 요약해줘 결과 데이터의 형식은" +
+            "consult_type: 전체를 아우르는 10글자 이내의 타입, consult_data: 상대 내용의 요약 내용 글자수는 500자 이내로 해줘, significant: 상담 내용 중 특이사항이라고 판단되는 것들을 추려내줘 " +
+            "이러한 내용을 담긴 요약본을 문장으로 만들어서줘 다른 데이터는 필요없고 consult_type, consult_data, significant와 그에 속하는 data로만 구성된 답변이면 될 것 같아";
+    
+
+
+
+    @Scheduled(cron = "0 0 0 * * ?")
+//    @Scheduled(fixedRate = 2*60*1000)
     public void executeRoutine() throws IOException {
         log.info("-------------- ROUTINE START ---------------------");
         List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
@@ -71,7 +87,8 @@ public class RoutineService {
                         filteredChatroomDetails.add(detail);
                     }
                 }
-                log.info("filteredChatroomDetails: {}", filteredChatroomDetails);
+
+                // grpc 형태에 맞춰서 chat으로 제작
                 Map<Long, ChatHistory> chatHistoryMap = new HashMap<>();
                 for (ChatroomDetail detail : filteredChatroomDetails) {
                     Long seq = detail.getSeq();
@@ -83,46 +100,71 @@ public class RoutineService {
                     }
                     chatHistoryMap.put(seq, chatHistory);
                 }
-
                 List<ChatHistory> chatHistoryList = new ArrayList<>(chatHistoryMap.values());
                 List<Chat> chatList = chatHistoryList.stream()
                         .map(chatHistory -> new Chat(chatHistory.getInput(), chatHistory.getOutput()))
                         .collect(Collectors.toList());
                 log.info("chatList: {}", chatList);
-            }
-            // public static void main(String[] args) {
-            //     String data = "A:value with spaces and 😊 emojis, B:another value, C:yet another value";
-            //     Map<String, String> parsedData = parseData(data);
 
-            //     System.out.println("A: " + parsedData.get("A"));
-            //     System.out.println("B: " + parsedData.get("B"));
-            //     System.out.println("C: " + parsedData.get("C"));
-            // }
+                // grpc 연결해서 질문보내기
+                // list 와 prompt를 보내기
+                try {
+                    ChatStreamObserverHandler requestObserver = connectionHandler.getStreamObserver(selectedId);
+                    if (requestObserver == null) {
+                        requestObserver = connectionHandler.createStreamObserver(selectedId);
+                    }
+                    requestObserver.setBaseStreamObserver();
 
-            public static Map<String, String> parseData(String data) {
-                Map<String, String> resultMap = new HashMap<>();
-        
-                // Regular expression to match patterns like "A:---"
-                String regex = "(?<=\\bconsult_type:|\\bconsult_data:|\\bsignificant:)(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
-                String[] keys = {"consult_type", "consult_data", "significant"};
-        
-                for (String key : keys) {
-                    // Find the substring that matches the pattern
-                    String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
-                    String value = data.replaceAll(".*" + pattern + ".*", "$1").trim();
-        
-                    // Remove any leading or trailing comma
-                    value = value.replaceAll(",$", "").trim();
-                    resultMap.put(key, value);
+                    Config.Builder configBuilder = Config.newBuilder()
+                            .setPromptFormat(basePrompt);
+
+
+                    Config config = configBuilder.build();
+                    ChatRequest requestWithConfig = ChatRequest.newBuilder()
+                            .setConfig(config)
+                            .build();
+                    requestObserver.onNext(requestWithConfig);
+                    ChatRequest requestWithMessage =
+                            ChatRequest.newBuilder()
+                                    .setMsg(chatList)
+                                    .build();
+                    requestObserver.onNext(requestWithMessage);
+
+                } catch (Exception e) {
+                    log.error("[GRPC_CHAT] Exception {}", e.getMessage());
                 }
-        
-                return resultMap;
+
+                // 답변 받아오기(string으로 나올 예정)
+                // data 정리를 통해서 consult_type, consult_data, significant 분류
+
+//                Map<String, String> resultGrpc = parseData(grpcdata);
+
+                // indirect 형식에 맞춰서 나머지 데이터 넣기
+                // 정렬된 indirect model에 맞춰 insert indirect data
             }
+
         }
 
         log.info("IDs with chat_updated less than 24 hours: {}", idList);
 
         log.info("-------------- ROUTINE END ---------------------");
+    }
+
+    public static Map<String, String> parseData(String data) {
+        Map<String, String> resultMap = new HashMap<>();
+
+        String regex = "(?<=\\bconsult_type:|\\bconsult_data:|\\bsignificant:)(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
+        String[] keys = {"consult_type", "consult_data", "significant"};
+
+        for (String key : keys) {
+            String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
+            String value = data.replaceAll(".*" + pattern + ".*", "$1").trim();
+
+            value = value.replaceAll(",$", "").trim();
+            resultMap.put(key, value);
+        }
+
+        return resultMap;
     }
 
 }
