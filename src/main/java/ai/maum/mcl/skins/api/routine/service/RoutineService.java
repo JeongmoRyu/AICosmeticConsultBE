@@ -60,7 +60,12 @@ public void executeRoutine() throws IOException {
                 }
             }
             log.info("filteredChatroomDetails: {}", filteredChatroomDetails);
+            List<Chat> chatHistory = new ArrayList<>();
 
+            for (ChatHistory item : filteredChatroomDetails) {
+                // Chat chat = Chat.newBuilder().setInput(item.getInput()).setOutput(item.getOutput()).build();
+                chatHistory.add(chat);
+            }
         }
     }
 
