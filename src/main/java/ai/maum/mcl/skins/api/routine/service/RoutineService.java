@@ -29,7 +29,7 @@ public class RoutineService {
     private final MemberMapper memberMapper;
 
 //    @Scheduled(cron = "0 0 0 * * ?")
-//    @Scheduled(fixedRate = 2*60*1000)
+   @Scheduled(fixedRate = 2*60*1000)
 public void executeRoutine() throws IOException {
     log.info("-------------- ROUTINE START ---------------------");
     List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
@@ -53,19 +53,21 @@ public void executeRoutine() throws IOException {
                     new TypeReference<List<ChatroomDetail>>() {});
             List<ChatroomDetail> filteredChatroomDetails = new ArrayList<>();
 
-            for (ChatroomDetail detail : chatroomDetailList) {
-                if ((detail.getCreated_at() != null && detail.getCreated_at().after(twentyFourHoursAgo)) ||
-                        (detail.getUpdated_at() != null && detail.getUpdated_at().after(twentyFourHoursAgo))) {
-                    filteredChatroomDetails.add(detail);
+            
+            Map<Long, ChatHistory> chatHistoryMap = new HashMap<>();
+            for (ChatroomDetail detail : filteredChatroomDetails) {
+                Long seq = detail.getSeq();
+                ChatHistory chatHistory = chatHistoryMap.getOrDefault(seq, new ChatHistory(seq, null, null));
+                if ("user".equals(detail.getRole())) {
+                    chatHistory.setInput(detail.getContent());
+                } else if ("assistant".equals(detail.getRole())) {
+                    chatHistory.setOutput(detail.getContent());
                 }
+                chatHistoryMap.put(seq, chatHistory);
             }
-            log.info("filteredChatroomDetails: {}", filteredChatroomDetails);
-            List<Chat> chatHistory = new ArrayList<>();
 
-            for (ChatHistory item : filteredChatroomDetails) {
-                // Chat chat = Chat.newBuilder().setInput(item.getInput()).setOutput(item.getOutput()).build();
-                chatHistory.add(chat);
-            }
+            List<ChatHistory> chatHistoryList = new ArrayList<>(chatHistoryMap.values());
+            log.info("ChatHistory: {}", chatHistoryList);
         }
     }
 
