@@ -4,6 +4,7 @@ package ai.maum.mcl.skins.api.routine.service;
 import ai.maum.mcl.skins.api.chat.model.ChatHistory;
 import ai.maum.mcl.skins.api.consult.model.ConsultIndirect;
 import ai.maum.mcl.skins.api.consult.mapper.ConsultMapper;
+import ai.maum.mcl.skins.api.consult.service.ConsultService;
 import ai.maum.mcl.skins.api.member.mapper.MemberMapper;
 import ai.maum.mcl.skins.api.member.model.MemberChatTime;
 import ai.maum.mcl.skins.api.member.model.MemberList;
@@ -39,10 +40,9 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,6 +52,8 @@ public class RoutineService {
     private final MemberMapper memberMapper;
     private final CallProaiService callProaiService;
     private final ChatGrpcConnectionHandler connectionHandler;
+    private final ConsultService consultService;
+
 
 
     private String basePrompt = "채팅들을 요약해줘 결과 데이터의 형식은" +
@@ -67,7 +69,9 @@ public class RoutineService {
         log.info("allmembers: {}", allMembers);
         List<Long> idList = new ArrayList<>();
         Timestamp now = Timestamp.from(Instant.now());
-        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
+        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(1*60*60));
+//        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
+
 
         for (MemberChatTime member : allMembers) {
             Timestamp chatUpdated = member.getChatUpdated();
@@ -89,12 +93,14 @@ public class RoutineService {
                         filteredChatroomDetails.add(detail);
                     }
                 }
-                log.info("chatroomDetailList: {}", filteredChatroomDetails);
+//                log.info("chatroomDetailList: {}", filteredChatroomDetails);
+
                 //  그 당일 중 가장 빠른 일자 추출
                 Optional<Timestamp> fastedTimeOptional = filteredChatroomDetails.stream()
-                    .map(ChatroomDetail::getCreated_at)
-                    .filter(Objects::nonNull)
-                    .min(Comparator.naturalOrder());
+                        .map(ChatroomDetail::getCreated_at)
+                        .filter(Objects::nonNull)
+                        .min(Comparator.naturalOrder());
+                Timestamp fastTime = fastedTimeOptional.get();
                 // 전날 일자
                 Instant oneDayAgoInstant = Instant.now().minusSeconds(24 * 60 * 60);
                 Timestamp oneDayAgo = Timestamp.from(oneDayAgoInstant);
@@ -111,10 +117,10 @@ public class RoutineService {
                     }
                     chatHistoryMap.put(seq, chatHistory);
                 }
-                log.info("chatHistoryMap: {}", chatHistoryMap);
+//                log.info("chatHistoryMap: {}", chatHistoryMap);
 
                 List<ChatHistory> chatHistoryList = new ArrayList<>(chatHistoryMap.values());
-                log.info("chatHistoryList: {}", chatHistoryList);
+//                log.info("chatHistoryList: {}", chatHistoryList);
 
 
 
@@ -152,16 +158,18 @@ public class RoutineService {
                     // indirect 형식에 맞춰서 나머지 데이터 넣기
                     // 정렬된 indirect model에 맞춰 insert indirect data
                     ConsultIndirect consultIndirect = new ConsultIndirect();
+
                     consultIndirect.setUserkey(selectedId);
                     consultIndirect.setName(member.getName());
-                    consultIndirect.setConsultTime(fastedTimeOptional);
+                    consultIndirect.setConsultTime(fastTime);
                     consultIndirect.setConsultDate(oneDayAgo);
                     consultIndirect.setConsultData(resultGrpc.get("consult_data"));
-                    consultIndirect.setManager("가나다");
+                    consultIndirect.setManager("AI");
                     consultIndirect.setConsultType(resultGrpc.get("consult_type"));
                     consultIndirect.setSignificant(resultGrpc.get("significant"));
+                    log.info("consutlIndirect: {}" , consultIndirect);
 
-                    ConsultMapper.insertConsultIndirect(consultIndirect);
+                    consultService.registIndirectSummary(consultIndirect);
 
 
                 } catch (Exception e) {
@@ -175,42 +183,25 @@ public class RoutineService {
     }
 
 
-    // public static Map<String, String> parseData(String data) {
-    //     Map<String, String> resultMap = new HashMap<>();
-
-    //     String regex = "(?<=\\bconsult_type:|\\bconsult_data:|\\bsignificant:)(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
-    //     String[] keys = {"consult_type", "consult_data", "significant"};
-
-    //     for (String key : keys) {
-    //         String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
-    //         String value = data.replaceAll(".*" + pattern + ".*", "$1").trim();
-
-    //         value = value.replaceAll(",$", "").trim();
-    //         resultMap.put(key, value);
-    //     }
-
-    //     return resultMap;
-    // }
     public static Map<String, String> parseData(String data) {
         Map<String, String> resultMap = new HashMap<>();
-        
+
         String[] keys = {"consult_type", "consult_data", "significant"};
-        
+
         for (String key : keys) {
             String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
             Pattern regexPattern = Pattern.compile(pattern);
             Matcher matcher = regexPattern.matcher(data);
-            
+
             if (matcher.find()) {
                 String value = matcher.group(1).trim();
                 resultMap.put(key, value);
             } else {
-                resultMap.put(key, ""); 
+                resultMap.put(key, "");
             }
         }
-        
+
         return resultMap;
     }
-
 
 }

@@ -1,15 +1,16 @@
 package ai.maum.mcl.skins.api.consult.service;
 
-import ai.maum.mcl.skins.api.common.BaseResponse;
 import ai.maum.mcl.skins.api.consult.mapper.ConsultMapper;
-import ai.maum.mcl.skins.api.consult.model.ConsultIndirect;
-import ai.maum.mcl.skins.api.consult.model.ConsultInfo;
+import ai.maum.mcl.skins.api.consult.model.*;
+import ai.maum.mcl.skins.api.manager.model.Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -22,13 +23,13 @@ public class ConsultService {
     public List<ConsultInfo> getConsultInfoByUserKey(Long userKey) {
         return consultMapper.getConsultInfoByUserKey(userKey);
     }
+
     public List<SignificantGroup> getSignificantGroup() {
         return consultMapper.getConsultSignificantGroup();
     }
 
-
     public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
-        Map<String, Long> parameters = new HashMap<>();
+        Map<String, Object> parameters = new HashMap<>();
         if (memberId != null) {
             parameters.put("memberId", memberId);
         }
@@ -36,17 +37,18 @@ public class ConsultService {
 
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
-    public List<ConsultDirect> getConsultDirectByConsultNumber(Long memberId,Long consultNumber) {
-        Map<String, Long> parameters = new HashMap<>();
+    public List<ConsultDirect> getConsultDirectByConsultNumber(Long memberId, Long consultNumber) {
+        Map<String, Object> parameters = new HashMap<>();
         if (memberId != null) {
             parameters.put("memberId", memberId);
         }
         if (consultNumber != null) {
-            parameters.put("consultNumber", memberId);
+            parameters.put("consultNumber", consultNumber);
         }
         log.info("parameters: {}",parameters);
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
+
     public void updateConsultDirect(ConsultDirect consultDirect) {
         try {
             log.info("before update: {}, {}", consultDirect.getFeatures(), consultDirect.getFeatureList());
@@ -60,19 +62,9 @@ public class ConsultService {
         }
     }
 
-//    public List<ConsultInfo> getConsultInfoByUserKey(Long userKey, Integer consultNumber) {
-//        List<ConsultInfo> consultList = new ArrayList<>();
-//        List<ConsultInfo> tempList = consultMapper.getConsultInfoByUserKey(userKey);
-//        if (consultNumber != null) {
-//            if (consultNumber <= tempList.size()) {
-//                log.debug(String.valueOf(tempList.size()));
-//                consultList = tempList.subList(consultNumber, consultNumber + 1);;
-//            } else {
-//                BaseResponse.failure("차수보다 큰 숫자를 선택하셨습니다.");
-//            }
-//        } else {
-//            consultList = tempList;
-//        }
-//        return consultList;
-//    }
+    public ConsultIndirect registIndirectSummary(ConsultIndirect consultIndirect) {
+        consultMapper.insertConsultIndirect(consultIndirect);
+        return consultIndirect;
+    }
+
 }
