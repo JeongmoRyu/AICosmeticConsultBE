@@ -89,4 +89,8 @@
         WHERE userkey = #{userKey}
           AND consult_number = #{consultNumber}
     </update>
+        <insert id="insertConsultIndirect" useGeneratedKeys="true" keyProperty="id" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect">
+        INSERT INTO zr_20240604_consult_indirect (userkey, name, consult_time, manager, consult_data, consult_date, significant, consult_type)
+        VALUES ( #{userkey}, #{name}, #{consult_time}, #{manager}, #{consult_data}, #{consult_date}, #{significant}, #{consult_type} )
+    </insert>
 </mapper>

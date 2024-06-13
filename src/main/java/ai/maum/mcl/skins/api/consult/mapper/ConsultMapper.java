@@ -18,4 +18,6 @@ public interface ConsultMapper {
   public List<SignificantGroup> getConsultSignificantGroup();
   void updateConsultDirect(ConsultDirect consultDirect);
 
+  public void insertConsultIndirect(ConsultIndirect consultIndirect);
+
 }
