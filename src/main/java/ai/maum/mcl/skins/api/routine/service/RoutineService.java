@@ -90,6 +90,14 @@ public class RoutineService {
                     }
                 }
                 log.info("chatroomDetailList: {}", filteredChatroomDetails);
+                //  그 당일 중 가장 빠른 일자 추출
+                Optional<Timestamp> fastedTimeOptional = filteredChatroomDetails.stream()
+                    .map(ChatroomDetail::getCreated_at)
+                    .filter(Objects::nonNull)
+                    .min(Comparator.naturalOrder());
+                // 전날 일자
+                Instant oneDayAgoInstant = Instant.now().minusSeconds(24 * 60 * 60);
+                Timestamp oneDayAgo = Timestamp.from(oneDayAgoInstant);
 
                 // grpc 형태에 맞춰서 chat으로 제작
                 Map<Long, ChatHistory> chatHistoryMap = new HashMap<>();
@@ -146,8 +154,8 @@ public class RoutineService {
                     ConsultIndirect consultIndirect = new ConsultIndirect();
                     consultIndirect.setUserkey(selectedId);
                     consultIndirect.setName(member.getName());
-                    consultIndirect.setConsultTime(now);
-                    consultIndirect.setConsultDate(now);
+                    consultIndirect.setConsultTime(fastedTimeOptional);
+                    consultIndirect.setConsultDate(oneDayAgo);
                     consultIndirect.setConsultData(resultGrpc.get("consult_data"));
                     consultIndirect.setManager("가나다");
                     consultIndirect.setConsultType(resultGrpc.get("consult_type"));
@@ -167,21 +175,42 @@ public class RoutineService {
     }
 
 
+    // public static Map<String, String> parseData(String data) {
+    //     Map<String, String> resultMap = new HashMap<>();
+
+    //     String regex = "(?<=\\bconsult_type:|\\bconsult_data:|\\bsignificant:)(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
+    //     String[] keys = {"consult_type", "consult_data", "significant"};
+
+    //     for (String key : keys) {
+    //         String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
+    //         String value = data.replaceAll(".*" + pattern + ".*", "$1").trim();
+
+    //         value = value.replaceAll(",$", "").trim();
+    //         resultMap.put(key, value);
+    //     }
+
+    //     return resultMap;
+    // }
     public static Map<String, String> parseData(String data) {
         Map<String, String> resultMap = new HashMap<>();
-
-        String regex = "(?<=\\bconsult_type:|\\bconsult_data:|\\bsignificant:)(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
+        
         String[] keys = {"consult_type", "consult_data", "significant"};
-
+        
         for (String key : keys) {
             String pattern = key + ":(.*?)(?=,\\s*\\bconsult_type:|,\\s*\\bconsult_data:|,\\s*\\bsignificant:|$)";
-            String value = data.replaceAll(".*" + pattern + ".*", "$1").trim();
-
-            value = value.replaceAll(",$", "").trim();
-            resultMap.put(key, value);
+            Pattern regexPattern = Pattern.compile(pattern);
+            Matcher matcher = regexPattern.matcher(data);
+            
+            if (matcher.find()) {
+                String value = matcher.group(1).trim();
+                resultMap.put(key, value);
+            } else {
+                resultMap.put(key, ""); 
+            }
         }
-
+        
         return resultMap;
     }
+
 
 }
