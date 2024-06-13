@@ -129,6 +129,20 @@ public void executeRoutine() throws IOException {
 
                 // indirect 형식에 맞춰서 나머지 데이터 넣기
                 // 정렬된 indirect model에 맞춰 insert indirect data
+                ConsultIndirect consultIndirect = new ConsultIndirect();
+                consultIndirect.setUserkey(selectedId);
+                consultIndirect.setName(member.getName());
+                consultIndirect.setConsultTime(now);
+                consultIndirect.setConsultDate(now);
+                consultIndirect.setConsultData(resultGrpc.get("consult_data"));
+                consultIndirect.setManager("가나다"); 
+                consultIndirect.setConsultType(resultGrpc.get("consult_type"));
+                consultIndirect.setSignificant(resultGrpc.get("significant"));
+
+                // 데이터베이스에 저장
+                consultIndirectMapper.insertConsultIndirect(consultIndirect);
+
+
 
             } catch (Exception e) {
                 log.error("[GRPC_SUMMARIZE] Exception {}", e.getMessage());

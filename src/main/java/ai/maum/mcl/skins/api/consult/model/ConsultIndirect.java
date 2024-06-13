@@ -22,7 +22,7 @@ public class ConsultIndirect {
     private Timestamp consultDate;
     @Schema(description = "상담요약정보",name = "consult_data", example = "요약된 내용-----")
     @JsonProperty("consult_data")
-    private Timestamp consultData;
+    private String consultData;
     @Schema(description = "상담사", example = "가나다")
     private String manager;
     @Schema(description = "타입",name = "consult_type",example = "타입은--")
