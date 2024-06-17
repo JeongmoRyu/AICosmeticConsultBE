@@ -58,19 +58,20 @@ public class RoutineService {
 
     private String basePrompt = "채팅들을 요약해줘 결과 데이터의 형식은" +
             "consult_type: 전체를 아우르는 10글자 이내의 타입, consult_data: 상대 내용의 요약 내용 글자수는 500자 이내로 해줘, significant: 상담 내용 중 특이사항이라고 판단되는 것들을 추려내줘 " +
-            "이러한 내용을 담긴 요약본을 문장으로 만들어서줘 다른 데이터는 필요없고 consult_type, consult_data, significant와 그에 속하는 data로만 구성된 답변이면 될 것 같아";
+            "이러한 내용을 담긴 요약본을 문장으로 만들어서줘 다른 데이터는 필요없고 정확하게 consult_type, consult_data, significant와 그에 속하는 data로만 구성된 답변이면 될 것 같아" +
+            "한번 더 예시를 보여주면 consult_type: 건조한 피부 트러블 고민, consult_data: 평소에도 건조한 피부에 대해서 고민이 많았는데 요즘 날씨에 피부 트러블이 더 심해져서 고민이 더 심해지고 있어 해결할 수 있는 밥법을 찾는 고객과 그에 따른 답변 내용, significant: 날씨에 따라 피부 트러블이 심해짐";
 
 
-//    @Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(fixedRate = 2*60*1000)
+    @Scheduled(cron = "0 0 0 * * ?")
+//    @Scheduled(fixedRate = 2*60*1000)
     public void executeRoutine() throws IOException {
         log.info("-------------- ROUTINE START ---------------------");
         List<MemberChatTime> allMembers = memberMapper.findMemberWithChatUpdated();
         log.info("allmembers: {}", allMembers);
         List<Long> idList = new ArrayList<>();
         Timestamp now = Timestamp.from(Instant.now());
-        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(1*60*60));
-//        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
+//        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(2*60*60));
+        Timestamp twentyFourHoursAgo = Timestamp.from(Instant.now().minusSeconds(24*60*60));
 
 
         for (MemberChatTime member : allMembers) {
@@ -101,9 +102,6 @@ public class RoutineService {
                         .filter(Objects::nonNull)
                         .min(Comparator.naturalOrder());
                 Timestamp fastTime = fastedTimeOptional.get();
-                // 전날 일자
-                Instant oneDayAgoInstant = Instant.now().minusSeconds(24 * 60 * 60);
-                Timestamp oneDayAgo = Timestamp.from(oneDayAgoInstant);
 
                 // grpc 형태에 맞춰서 chat으로 제작
                 Map<Long, ChatHistory> chatHistoryMap = new HashMap<>();
@@ -153,16 +151,16 @@ public class RoutineService {
 
                     // 여기서 summResponse.getResponse()를 파싱하여 필요한 데이터로 변환
                     Map<String, String> resultGrpc = parseData(summResponse.getResponse());
+                    log.info("resultGrpc: {},{},{}", resultGrpc.get("consult_data"), resultGrpc.get("consult_type"),resultGrpc.get("significant") );
 
 
                     // indirect 형식에 맞춰서 나머지 데이터 넣기
                     // 정렬된 indirect model에 맞춰 insert indirect data
                     ConsultIndirect consultIndirect = new ConsultIndirect();
 
-                    consultIndirect.setUserkey(selectedId);
+                    consultIndirect.setUserkey(selectedId.toString());
                     consultIndirect.setName(member.getName());
                     consultIndirect.setConsultTime(fastTime);
-                    consultIndirect.setConsultDate(oneDayAgo);
                     consultIndirect.setConsultData(resultGrpc.get("consult_data"));
                     consultIndirect.setManager("AI");
                     consultIndirect.setConsultType(resultGrpc.get("consult_type"));
@@ -200,7 +198,7 @@ public class RoutineService {
                 resultMap.put(key, "");
             }
         }
-
+        log.info("resultMap: {}", resultMap);
         return resultMap;
     }
 

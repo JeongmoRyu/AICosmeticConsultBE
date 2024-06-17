@@ -14,7 +14,7 @@ public interface ConsultMapper {
   public List<ConsultInfo> getConsultInfoByUserKey(Long userKey);
   public List<ConsultDirect> getConsultDirectByMemberId(Map<String, Long> params);
 
-  public List<ConsultIndirect> getConsultIndirectInfo(Long id);
+  public List<ConsultIndirect> getConsultIndirectByUserKey(Map<String, Object> params);
   public List<SignificantGroup> getConsultSignificantGroup();
   void updateConsultDirect(ConsultDirect consultDirect);
 

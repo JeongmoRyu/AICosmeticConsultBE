@@ -3,6 +3,7 @@ package ai.maum.mcl.skins.api.consult.service;
 import ai.maum.mcl.skins.api.consult.mapper.ConsultMapper;
 import ai.maum.mcl.skins.api.consult.model.*;
 import ai.maum.mcl.skins.api.manager.model.Manager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -17,9 +18,21 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ConsultService {
     private final ConsultMapper consultMapper;
-    public List<ConsultIndirect> getConsultIndirectInfo(Long id) {
-        return consultMapper.getConsultIndirectInfo(id);
+    public List<ConsultIndirect> getConsultIndirectInfo(String memberId, Integer year, Integer month) {
+        Map<String, Object> params = new HashMap<>();
+        if (memberId != null) {
+            params.put("memberId", memberId);
+        }
+        if (year != null) {
+            params.put("year", year);
+        }
+        if (month != null) {
+            params.put("month", month);
+        }
+
+        return consultMapper.getConsultIndirectByUserKey(params);
     }
+
     public List<ConsultInfo> getConsultInfoByUserKey(Long userKey) {
         return consultMapper.getConsultInfoByUserKey(userKey);
     }
@@ -62,8 +75,21 @@ public class ConsultService {
         }
     }
 
+    @Transactional
     public ConsultIndirect registIndirectSummary(ConsultIndirect consultIndirect) {
+        log.debug("Attempting to insert consultindirect: {} :", consultIndirect);
+        consultIndirect.setUserkey(consultIndirect.getUserkey());
+        consultIndirect.setName(consultIndirect.getName());
+        consultIndirect.setConsultTime(consultIndirect.getConsultTime());
+        consultIndirect.setManager(consultIndirect.getManager());
+        consultIndirect.setConsultData(consultIndirect.getConsultData());
+        consultIndirect.setSignificant(consultIndirect.getSignificant());
+        consultIndirect.setConsultType(consultIndirect.getConsultType());
+
+
         consultMapper.insertConsultIndirect(consultIndirect);
+        log.debug("consultindirect inserted successfully: {} :", consultIndirect);
+
         return consultIndirect;
     }
 

@@ -11,15 +11,12 @@ import java.sql.Timestamp;
 @Setter
 public class ConsultIndirect {
     @Schema(description = "userkey",example = "11111")
-    private Long userkey;
+    private String userkey;
     @Schema(description = "사용자 이름", example = "가나다")
     private String name;
     @Schema(description = "상담시작",name = "consult_time",example = "2024-01-01 00:00:00")
     @JsonProperty("consult_time")
     private Timestamp consultTime;
-    @Schema(description = "상담일시",name = "consult_date",example = "2024-01-01 00:00:00")
-    @JsonProperty("consult_date")
-    private Timestamp consultDate;
     @Schema(description = "상담요약정보",name = "consult_data", example = "요약된 내용-----")
     @JsonProperty("consult_data")
     private String consultData;
