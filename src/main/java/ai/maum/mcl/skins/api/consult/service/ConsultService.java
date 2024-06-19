@@ -73,6 +73,18 @@ public class ConsultService {
         return consults;
     }
 
+    public void updateConsultDirect(ConsultDirect consultDirect) {
+        consultMapper.updateConsultDirect(consultDirect);
+
+        // Delete existing features for the consult ID
+        consultMapper.deleteConsultFeaturesByConsultId(consultDirect.getId());
+
+        // Insert new features
+        for (ConsultFeature feature : consultDirect.getFeatures()) {
+            feature.setConsultId(consultDirect.getId());
+            consultMapper.insertConsultFeature(feature);
+        }
+    }
 //    public void updateConsultDirect(ConsultDirect consultDirect) {
 //        try {
 //            log.info("before update: {}, {}", consultDirect.getFeatures(), consultDirect.getFeatureList());

@@ -21,7 +21,8 @@ public interface ConsultMapper {
     public List<SignificantGroup> getConsultSignificantGroup();
 
     void updateConsultDirect(ConsultDirect consultDirect);
-
+    void deleteConsultFeaturesByConsultId(Long consultId);
+    void insertConsultFeature(ConsultFeature consultFeature);
     public void insertConsultIndirect(ConsultIndirect consultIndirect);
 
 
