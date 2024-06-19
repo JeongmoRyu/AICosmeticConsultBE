@@ -52,6 +52,28 @@ public class ConsultService {
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
 
+@Service
+public class ConsultService {
+    @Autowired
+    private ConsultMapper consultMapper;
+
+    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId, String consultNumber) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("memberId", memberId);
+        params.put("consultNumber", consultNumber);
+
+        List<ConsultDirect> consults = consultMapper.getConsultDirectByMemberId(params);
+
+        for (ConsultDirect consult : consults) {
+            List<Feature> features = consultMapper.getFeaturesByConsultId(consult.getId());
+            consult.setFeatures(features);
+        }
+
+        return consults;
+    }
+}
+
+
 
     public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
         Map<String, Object> parameters = new HashMap<>();

@@ -101,5 +101,29 @@
             AND ci.consult_number = #{consultNumber}
         </if>
     </select> -->
+<select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">
+    SELECT ci.id
+         , ci.consult_date
+         , ci.userkey
+         , ci.consult_data
+         , ci.concern1
+         , ci.concern2
+         , ci.product
+         , ci.significant
+         , ci.etc
+         , ci.consult_number
+         , ci.manager
+    FROM tb_consult_info ci
+    WHERE ci.userkey = #{memberId}
+    <if test="consultNumber != null">
+        AND ci.consult_number = #{consultNumber}
+    </if>
+</select>
+
+<select id="getFeaturesByConsultId" resultType="ai.maum.mcl.skins.api.consult.model.Feature" parameterType="long">
+    SELECT category_cd, consult_data
+    FROM tb_consult_detail
+    WHERE consult_id = #{consultId}
+</select>
 
 </mapper>

@@ -8,12 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-@Getter
-@Setter
-public class Feature {
-    private String categoryCd;
-    private String consultData;
-}
+
 @Getter
 @Setter
 public class ConsultDirect {

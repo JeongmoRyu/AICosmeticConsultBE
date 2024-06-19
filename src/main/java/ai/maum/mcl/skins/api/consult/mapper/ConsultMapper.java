@@ -19,5 +19,6 @@ public interface ConsultMapper {
   void updateConsultDirect(ConsultDirect consultDirect);
 
   public void insertConsultIndirect(ConsultIndirect consultIndirect);
-
+  public  List<ConsultDirect> getConsultDirectByMemberId(Map<String, Object> params);
+  public  List<Feature> getFeaturesByConsultId(Long consultId);
 }
