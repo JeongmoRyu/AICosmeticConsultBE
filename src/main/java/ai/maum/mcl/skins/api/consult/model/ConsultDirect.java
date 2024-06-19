@@ -8,6 +8,28 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+@Getter
+@Setter
+public class Feature {
+    private String categoryCd;
+    private String consultData;
+}
+@Getter
+@Setter
+public class ConsultDirect {
+    private Long id;
+    private String consultDate;
+    private String userkey;
+    private String consultData;
+    private String concern1;
+    private String concern2;
+    private String product;
+    private String significant;
+    private String etc;
+    private String consultNumber;
+    private String manager;
+    private List<Feature> features;
+}
 
 public class ConsultDirect {
     private static final Logger logger = LoggerFactory.getLogger(ConsultDirect.class);
@@ -191,16 +213,6 @@ public class ConsultDirect {
         return featureList;
     }
 
-//    public String serializeFeatures(List<Feature> featureList) {
-//        logger.info("featureList: {}",featureList.toString());
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            return objectMapper.writeValueAsString(featureList);
-//        } catch (Exception e) {
-//            logger.error("Error serializing features", e);
-//            return "";
-//        }
-//    }
 
     public String serializeFeatures(List<Feature> featureList) {
         if (featureList == null || featureList.isEmpty()) {

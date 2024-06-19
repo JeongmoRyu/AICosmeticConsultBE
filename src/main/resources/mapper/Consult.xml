@@ -79,4 +79,27 @@
         INSERT INTO consult_indirect (userkey, name, consult_time, manager, consult_data, significant, consult_type)
         VALUES ( #{userkey}, #{name}, #{consultTime}, #{manager}, #{consultData}, #{significant}, #{consultType} )
     </insert>
+
+    <!-- <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">
+        SELECT ci.id
+            , ci.consult_date
+            , ci.userkey
+            , ci.consult_data
+            , ci.concern1
+            , ci.concern2
+            , ci.product
+            , ci.significant
+            , ci.etc
+            , ci.consult_number
+            , ci.manager
+            , cd.category_cd
+            , cd.consult_data AS feature_consult_data
+        FROM tb_consult_info ci
+        LEFT JOIN tb_consult_detail cd ON ci.id = cd.consult_id
+        WHERE ci.userkey = #{memberId}
+        <if test="consultNumber != null">
+            AND ci.consult_number = #{consultNumber}
+        </if>
+    </select> -->
+
 </mapper>

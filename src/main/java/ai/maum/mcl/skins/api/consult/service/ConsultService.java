@@ -41,6 +41,18 @@ public class ConsultService {
         return consultMapper.getConsultSignificantGroup();
     }
 
+    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId, String consultNumber) {
+        Map<String, Object> parameters = new HashMap<>();
+        if (memberId != null) {
+            parameters.put("memberId", memberId);
+        }
+        if (consultNumber != null) {
+            parameters.put("consultNumber", consultNumber);
+        }
+        return consultMapper.getConsultDirectByMemberId(parameters);
+    }
+
+
     public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
         Map<String, Object> parameters = new HashMap<>();
         if (memberId != null) {
@@ -50,6 +62,7 @@ public class ConsultService {
 
         return consultMapper.getConsultDirectByMemberId(parameters);
     }
+
     public List<ConsultDirect> getConsultDirectByConsultNumber(Long memberId, Long consultNumber) {
         Map<String, Object> parameters = new HashMap<>();
         if (memberId != null) {
