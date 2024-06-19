@@ -56,9 +56,10 @@
     </select>
     <select id="getConsultSignificantGroup" resultType="ai.maum.mcl.skins.api.consult.model.SignificantGroup">
         SELECT code
-             , description
-             , value
+            , description
+            , value
         FROM tb_significant_group
+        WHERE group_cd IN ('SIGNIFICANT_GROUP_GENE', 'SIGNIFICANT_GROUP_FEATURES', 'SIGNIFICANT_GROUP_RECOMMEND')
         ORDER BY value ASC
     </select>
     <update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">
