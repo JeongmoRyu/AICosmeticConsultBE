@@ -41,50 +41,20 @@ public class ConsultService {
         return consultMapper.getConsultSignificantGroup();
     }
 
-    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId, String consultNumber) {
-        Map<String, Object> parameters = new HashMap<>();
-        if (memberId != null) {
-            parameters.put("memberId", memberId);
-        }
-        if (consultNumber != null) {
-            parameters.put("consultNumber", consultNumber);
-        }
-        return consultMapper.getConsultDirectByMemberId(parameters);
-    }
-
-@Service
-public class ConsultService {
-    @Autowired
-    private ConsultMapper consultMapper;
-
-    public List<ConsultDirect> getConsultDirectByMemberId(Long memberId, String consultNumber) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
-        params.put("consultNumber", consultNumber);
-
-        List<ConsultDirect> consults = consultMapper.getConsultDirectByMemberId(params);
-
-        for (ConsultDirect consult : consults) {
-            List<Feature> features = consultMapper.getFeaturesByConsultId(consult.getId());
-            consult.setFeatures(features);
-        }
-
-        return consults;
-    }
-}
-
-
-
     public List<ConsultDirect> getConsultDirectByMemberId(Long memberId) {
         Map<String, Object> parameters = new HashMap<>();
         if (memberId != null) {
             parameters.put("memberId", memberId);
         }
         log.info("parameters: {}",parameters);
+        List<ConsultDirect> consults = consultMapper.getConsultDirectByMemberId(parameters);
+        for (ConsultDirect consult : consults) {
+            List<ConsultFeature> features = consultMapper.getFeaturesByConsultId(consult.getId());
+            consult.setFeatures(features);
+        }
 
-        return consultMapper.getConsultDirectByMemberId(parameters);
+        return consults;
     }
-
     public List<ConsultDirect> getConsultDirectByConsultNumber(Long memberId, Long consultNumber) {
         Map<String, Object> parameters = new HashMap<>();
         if (memberId != null) {
@@ -94,21 +64,27 @@ public class ConsultService {
             parameters.put("consultNumber", consultNumber);
         }
         log.info("parameters: {}",parameters);
-        return consultMapper.getConsultDirectByMemberId(parameters);
+        List<ConsultDirect> consults = consultMapper.getConsultDirectByMemberId(parameters);
+        for (ConsultDirect consult : consults) {
+            List<ConsultFeature> features = consultMapper.getFeaturesByConsultId(consult.getId());
+            consult.setFeatures(features);
+        }
+
+        return consults;
     }
 
-    public void updateConsultDirect(ConsultDirect consultDirect) {
-        try {
-            log.info("before update: {}, {}", consultDirect.getFeatures(), consultDirect.getFeatureList());
-            consultMapper.updateConsultDirect(consultDirect);
-        } catch (DataAccessException e) {
-            log.error("Database access error occurred while updating", e);
-            throw e;
-        } catch (Exception e) {
-            log.error("Error updating consultation", e);
-            throw e;
-        }
-    }
+//    public void updateConsultDirect(ConsultDirect consultDirect) {
+//        try {
+//            log.info("before update: {}, {}", consultDirect.getFeatures(), consultDirect.getFeatureList());
+//            consultMapper.updateConsultDirect(consultDirect);
+//        } catch (DataAccessException e) {
+//            log.error("Database access error occurred while updating", e);
+//            throw e;
+//        } catch (Exception e) {
+//            log.error("Error updating consultation", e);
+//            throw e;
+//        }
+//    }
 
     @Transactional
     public ConsultIndirect registIndirectSummary(ConsultIndirect consultIndirect) {

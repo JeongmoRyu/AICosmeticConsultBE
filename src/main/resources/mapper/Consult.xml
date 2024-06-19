@@ -17,24 +17,48 @@
         FROM tb_consult_info
         where userkey = #{userKey}
     </select>
+<!--    <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">-->
+<!--        SELECT id-->
+<!--             , consult_date-->
+<!--             , userkey-->
+<!--             , consult_data-->
+<!--             , concern1-->
+<!--             , concern2-->
+<!--             , product-->
+<!--             , significant-->
+<!--             , etc-->
+<!--             , features-->
+<!--             , consult_number-->
+<!--             , manager-->
+<!--        FROM tb_consult_info-->
+<!--        where userkey = #{memberId}-->
+<!--        <if test="consultNumber != null">-->
+<!--            AND consult_number = #{consultNumber}-->
+<!--        </if>-->
+<!--    </select>-->
     <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">
-        SELECT id
-             , consult_date
-             , userkey
-             , consult_data
-             , concern1
-             , concern2
-             , product
-             , significant
-             , etc
-             , features
-             , consult_number
-             , manager
-        FROM tb_consult_info
-        where userkey = #{memberId}
+        SELECT ci.id
+        , ci.consult_date
+        , ci.userkey
+        , ci.consult_data
+        , ci.concern1
+        , ci.concern2
+        , ci.product
+        , ci.significant
+        , ci.etc
+        , ci.consult_number
+        , ci.manager
+        FROM tb_consult_info ci
+        WHERE ci.userkey = #{memberId}
         <if test="consultNumber != null">
-            AND consult_number = #{consultNumber}
+            AND ci.consult_number = #{consultNumber}
         </if>
+        
+    </select>
+    <select id="getFeaturesByConsultId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultFeature" parameterType="long">
+        SELECT category_cd, consult_data
+        FROM tb_consult_detail
+        WHERE consult_id = #{consultId}
     </select>
     <select id="getConsultIndirectByUserKey" resultType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect" parameterType="map">
         SELECT userkey
@@ -44,7 +68,7 @@
         , consult_data
         , significant
         , consult_type
-        FROM consult_indirect a
+        FROM zr_20240604_consult_indirect a
         where userkey = CAST(#{memberId} AS character varying)
             <if test="year != null and year != ''">
                 AND EXTRACT(year from a.consult_time) = #{year}
@@ -55,75 +79,28 @@
         ORDER BY a.consult_time asc
     </select>
     <select id="getConsultSignificantGroup" resultType="ai.maum.mcl.skins.api.consult.model.SignificantGroup">
-        SELECT code
-            , description
-            , value
-        FROM tb_significant_group
+        SELECT description as code
+             , cd_name as description
+             , CAST(cd_id AS INTEGER) as value
+        FROM tb_code
         WHERE group_cd IN ('SIGNIFICANT_GROUP_GENE', 'SIGNIFICANT_GROUP_FEATURES', 'SIGNIFICANT_GROUP_RECOMMEND')
         ORDER BY value ASC
     </select>
-    <update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">
-        UPDATE tb_consult_info
-        SET consult_date = #{consultDate},
-            consult_data = #{consultData},
-            concern1 = #{concern1},
-            concern2 = #{concern2},
-            product = #{product},
-            significant = #{significant},
-            etc = #{etc},
-            features = #{features}
-        WHERE userkey = #{userKey}
-          AND consult_number = #{consultNumber}
-    </update>
+<!--    <update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">-->
+<!--        UPDATE tb_consult_info-->
+<!--        SET consult_date = #{consultDate},-->
+<!--            consult_data = #{consultData},-->
+<!--            concern1 = #{concern1},-->
+<!--            concern2 = #{concern2},-->
+<!--            product = #{product},-->
+<!--            significant = #{significant},-->
+<!--            etc = #{etc},-->
+<!--            features = #{features}-->
+<!--        WHERE userkey = #{userKey}-->
+<!--          AND consult_number = #{consultNumber}-->
+<!--    </update>-->
     <insert id="insertConsultIndirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect">
-        INSERT INTO consult_indirect (userkey, name, consult_time, manager, consult_data, significant, consult_type)
+        INSERT INTO zr_20240604_consult_indirect (userkey, name, consult_time, manager, consult_data, significant, consult_type)
         VALUES ( #{userkey}, #{name}, #{consultTime}, #{manager}, #{consultData}, #{significant}, #{consultType} )
     </insert>
-
-    <!-- <select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">
-        SELECT ci.id
-            , ci.consult_date
-            , ci.userkey
-            , ci.consult_data
-            , ci.concern1
-            , ci.concern2
-            , ci.product
-            , ci.significant
-            , ci.etc
-            , ci.consult_number
-            , ci.manager
-            , cd.category_cd
-            , cd.consult_data AS feature_consult_data
-        FROM tb_consult_info ci
-        LEFT JOIN tb_consult_detail cd ON ci.id = cd.consult_id
-        WHERE ci.userkey = #{memberId}
-        <if test="consultNumber != null">
-            AND ci.consult_number = #{consultNumber}
-        </if>
-    </select> -->
-<select id="getConsultDirectByMemberId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultDirect" parameterType="map">
-    SELECT ci.id
-         , ci.consult_date
-         , ci.userkey
-         , ci.consult_data
-         , ci.concern1
-         , ci.concern2
-         , ci.product
-         , ci.significant
-         , ci.etc
-         , ci.consult_number
-         , ci.manager
-    FROM tb_consult_info ci
-    WHERE ci.userkey = #{memberId}
-    <if test="consultNumber != null">
-        AND ci.consult_number = #{consultNumber}
-    </if>
-</select>
-
-<select id="getFeaturesByConsultId" resultType="ai.maum.mcl.skins.api.consult.model.Feature" parameterType="long">
-    SELECT category_cd, consult_data
-    FROM tb_consult_detail
-    WHERE consult_id = #{consultId}
-</select>
-
 </mapper>
