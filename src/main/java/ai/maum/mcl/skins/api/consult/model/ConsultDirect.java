@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 public class ConsultDirect {
     private Long id;
-    private String consultDate;
+    private Timestamp consultDate;
     private String userkey;
     private String consultData;
     private String concern1;

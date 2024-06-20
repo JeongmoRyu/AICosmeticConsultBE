@@ -6,8 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ConsultFeature {
-    private String categoryCd;
-    private String consultData;
+    private Long consultId;
+    private String label;
+    private String description;
 }
 
 

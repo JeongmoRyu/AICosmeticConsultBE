@@ -53,10 +53,10 @@
         <if test="consultNumber != null">
             AND ci.consult_number = #{consultNumber}
         </if>
-        
+
     </select>
     <select id="getFeaturesByConsultId" resultType="ai.maum.mcl.skins.api.consult.model.ConsultFeature" parameterType="long">
-        SELECT category_cd, consult_data
+        SELECT consult_id, category_cd as label, consult_data as description
         FROM tb_consult_detail
         WHERE consult_id = #{consultId}
     </select>
@@ -86,6 +86,27 @@
         WHERE group_cd IN ('SIGNIFICANT_GROUP_GENE', 'SIGNIFICANT_GROUP_FEATURES', 'SIGNIFICANT_GROUP_RECOMMEND')
         ORDER BY value ASC
     </select>
+    <update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">
+        UPDATE tb_consult_info
+        SET consult_date = #{consultDate},
+            consult_data = #{consultData},
+            concern1 = #{concern1},
+            concern2 = #{concern2},
+            product = #{product},
+            significant = #{significant},
+            etc = #{etc}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteConsultFeaturesByConsultId" parameterType="long">
+        DELETE FROM tb_consult_detail
+        WHERE consult_id = #{consultId}
+    </delete>
+
+    <insert id="insertConsultFeature" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultFeature">
+        INSERT INTO tb_consult_detail (consult_id, category_cd, consult_data)
+        VALUES (#{consultId}, #{label}, #{description})
+    </insert>
 <!--    <update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">-->
 <!--        UPDATE tb_consult_info-->
 <!--        SET consult_date = #{consultDate},-->
@@ -99,27 +120,6 @@
 <!--        WHERE userkey = #{userKey}-->
 <!--          AND consult_number = #{consultNumber}-->
 <!--    </update>-->
-<update id="updateConsultDirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultDirect">
-    UPDATE tb_consult_info
-    SET consult_date = #{consultDate},
-        consult_data = #{consultData},
-        concern1 = #{concern1},
-        concern2 = #{concern2},
-        product = #{product},
-        significant = #{significant},
-        etc = #{etc}
-    WHERE id = #{id}
-</update>
-
-<delete id="deleteConsultFeaturesByConsultId" parameterType="long">
-    DELETE FROM tb_consult_detail
-    WHERE consult_id = #{consultId}
-</delete>
-
-<insert id="insertConsultFeature" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultFeature">
-    INSERT INTO tb_consult_detail (consult_id, category_cd, consult_data)
-    VALUES (#{consultId}, #{categoryCd}, #{consultData})
-</insert>
     <insert id="insertConsultIndirect" parameterType="ai.maum.mcl.skins.api.consult.model.ConsultIndirect">
         INSERT INTO zr_20240604_consult_indirect (userkey, name, consult_time, manager, consult_data, significant, consult_type)
         VALUES ( #{userkey}, #{name}, #{consultTime}, #{manager}, #{consultData}, #{significant}, #{consultType} )
