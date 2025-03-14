@@ -1,4 +1,4 @@
-# skins-api
+# AICosmetic Consult API
 
 
 
